@@ -93,9 +93,6 @@ while(true) {
 
 foreach ($calList->getItems() as $calender) {
 	$googlecal_id = $calender["id"];
-	if ($calender['summary'] == 'English_north_not_used' || $calender['summary'] == 'English_home') {
-		continue;
-	}
 var_dump($calender['summary']);
 	if ($err_flag == true) { 
 		var_dump($err_flag);
@@ -246,7 +243,6 @@ var_dump($calender['summary']);
                 if ($event_param_array === false) {
                         if ($target_teacher_id) { continue; }
                         $err_flag = true;
-var_dump($err_flag);
 		        break;
                 }
 
@@ -788,8 +784,11 @@ function get_event_param($db, $event, &$errArray, $target_teacher_id) {
                 }
 //		if (preg_match( "/^(\(仮\))?".$course["course_name"]."/", $tmp_event_summary, $matches, PREG_OFFSET_CAPTURE)===1) {
 		if (mb_strpos( $tmp_event_summary,$course["course_name"])!==FALSE) {
+			if ( (int)$course["course_id"] > 3 || (int)$course["course_id"] < 7 ) {
+				// 夏期講習、冬季講習、春季講習の文字列がヒットしても何もしない
+				break;
+			}
                         $course_id = $course["course_id"];
-//var_dump($course);
                         $type_id = $course["type_id"];
                         break;  // for each
                 }  else if (empty($course["course_name_english"]) === false) {
@@ -833,14 +832,17 @@ function get_event_param($db, $event, &$errArray, $target_teacher_id) {
  	      		// グループとGroupの2種類がある
                 $tmp_match_num = preg_match_all( "/\((.*?)\)/", $tmp_event_summary, $tmp_matches, PREG_PATTERN_ORDER);
 
-//		if ($tmp_match_num === false || $tmp_match_num < 1) {
-//                        $errMessage = "「()」で生徒氏名をくくってください。<br>";
-//                        $errMessage .= $event['calender_summary']."カレンダー&nbsp;".date("Y/m/d H:i", $start_timestamp)."～".date("H:i", $end_timestamp)."<br>";
-//                        $errMessage .= $event['summary'];
-//                        $errArray[] = $errMessage;
-//var_dump($errMessage);
+		if ($tmp_match_num === false || $tmp_match_num < 1) {
+                        $errMessage = "「()」で生徒氏名をくくってください。<br>";
+                        $errMessage .= $event['calender_summary']."カレンダー&nbsp;".date("Y/m/d H:i", $start_timestamp)."～".date("H:i", $end_timestamp)."<br>";
+                        $errMessage .= $event['summary'];
+                        $errArray[] = $errMessage;
+//var_dump($tmp_event_summary);
+//var_dump($event['start']);
+//var_dump($event['end']);
+//var_dump($event['summary']);
 //                        return false;
-//                }
+                }
 
                 // 「(」「)」でくくられた一人ずつ処理をする
                 for ($i=0; $i<$tmp_match_num; $i++) {
