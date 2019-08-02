@@ -154,7 +154,7 @@ try{
 		$row_cnt = count($lecture_list) ;
 		if ($row_cnt  == 0) {
 			print_r('insert_calender_event:failed: ' . $e->getMessage());
-			goto exit_label:
+			goto exit_label;
 		}
 		$lesson_id = (int)$lecture_list[lesson_id];
 		$course_id = (int)$lecture_list[course_id];
