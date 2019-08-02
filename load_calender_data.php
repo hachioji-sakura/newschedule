@@ -181,6 +181,7 @@ try{
 		if ($cancel == 'a1') { 
 			$absent_flag = '1'; 
 			$evt_summary = $evt_summary.CONST_ABSENT1;
+			$event_diff_hours = 0;
 		} else if ($cancel == 'a2') { 
 			$absent_flag = '2';
 			$evt_summary = $evt_summary.CONST_ABSENT2;
@@ -190,11 +191,13 @@ try{
 		} else if ($cancel == 'a') { 
 			$absent_flag = '1'; 
 			$evt_summary = $evt_summary.CONST_ABSENT;
+			$event_diff_hours = 0;
 		} else { $absent_flag = '0'; }
 
 							// 振替処理
 		if ($altsched_id !== 0 ) { 
 			$alternative_flag = '1' ;  
+			$event_diff_hours = 0;
 			$evt_summary = $evt_summary.CONST_ALTERNATE;
 		}  
 							// 名前を文字列にする処理
@@ -334,7 +337,7 @@ try{
 			$stmt->bindValue(12, $event_end_timestamp, PDO::PARAM_STR);  
 			$stmt->bindValue(13, $event_end_hour, PDO::PARAM_STR);  
 			$stmt->bindValue(14, $event_end_minute, PDO::PARAM_STR);  
-			$stmt->bindValue(15, $event_diff_hours, PDO::PARAM_INT);  
+			$stmt->bindValue(15, $event_diff_hours, PDO::PARAM_STR);  
 			$stmt->bindValue(16, $lesson_id, PDO::PARAM_STR);  
 			$stmt->bindValue(17, $subject_id, PDO::PARAM_STR);  
 			$stmt->bindValue(18, $course_id, PDO::PARAM_STR);  
