@@ -152,24 +152,19 @@ try{
 
 		$lecture_list = get_lecture_vector($db,$lecture_id);
 		$row_cnt = count($lecture_list) ;
-		if ($row_cnt  == 0) {
-			print_r('insert_calender_event:failed: ' . $e->getMessage());
-			goto exit_label;
+		if ($row_cnt  > 0) {
+			$lesson_id = (int)$lecture_list[lesson_id];
+			$course_id = (int)$lecture_list[course_id];
+			$subject_id = (int)$lecture_list[subject_id];
+			if ($course_id == '2' ) {		// Group
+				$evt_summary = CONST_GROUP ;
+			} else if ($course_id == '3' ) {  // family
+				$evt_summary = CONST_FAMILY ;
+			}
 		}
-		$lesson_id = (int)$lecture_list[lesson_id];
-		$course_id = (int)$lecture_list[course_id];
-		$subject_id = (int)$lecture_list[subject_id];
-
-		// making $evt_summary from tbl_schedule_onetime.
+			// making $evt_summary from tbl_schedule_onetime.
 
 		$evt_summary = '';			// Initialization.
-
-		if ($course_id == '2' ) {		// Group
-			$evt_summary = CONST_GROUP ;
-		} else if ($course_id == '3' ) {  // family
-			$evt_summary = CONST_FAMILY ;
-		}
-
 							// 休み処理
 		if ($cancel_reason == CONST_ABSENTLATE ) { 
 			$evt_summary = $evt_summary.CONST_ABSENTLATE;
