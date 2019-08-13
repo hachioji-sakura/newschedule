@@ -784,7 +784,7 @@ function get_event_param($db, $event, &$errArray, $target_teacher_id) {
                 }
 //		if (preg_match( "/^(\(仮\))?".$course["course_name"]."/", $tmp_event_summary, $matches, PREG_OFFSET_CAPTURE)===1) {
 		if (mb_strpos( $tmp_event_summary,$course["course_name"])!==FALSE) {
-			if ( (int)$course["course_id"] > 3 || (int)$course["course_id"] < 7 ) {
+			if ( (int)$course["course_id"] > 3 && (int)$course["course_id"] < 7 ) {
 				// 夏期講習、冬季講習、春季講習の文字列がヒットしても何もしない
 				break;
 			}
