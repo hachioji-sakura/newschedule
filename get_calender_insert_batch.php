@@ -387,7 +387,9 @@ try{
         }  // end of for each.
 	if ($subject_id) {
              $subject_expr = $subject_list[$subject_id];
-       }
+        }
+
+	if ($user_id==0) { goto exit_label;}
 						// not Repeting
 	$sql = "INSERT INTO tbl_schedule_onetime (".
 //	$sql = "INSERT INTO tbl_schedule_onetime_test (".
@@ -571,21 +573,20 @@ function get_family(&$db, $family_data) {
                 $alternative_flag = "1";
                 $alternate = "a";
         }    
- 	$search_array = array("休み3","Absent3","absent3","休み2","Absent2","absent2","休み1","Absent1",
+ 	$search_array = array("休み3","休み３","Absent3","absent3","休み2","休み２","Absent2","absent2","休み1","休み１","Absent1",
                                 "absent1","休み","Absent","absent",":","振替","alternative","Alternative","make-up","Today","No_class","No class",
                                 "当日");
-        $replace_array = array("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "");
+        $replace_array = array("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "");
         $tmp1_cal_name = str_replace($search_array, $replace_array, $family_data);
         $search_array = array("無料体験","体験","trial","Trial","三者面談1","面談1","三者面談2","面談2","三者面談","面談","休講");
         $replace_array = array("", "", "", "", "", "", "", "", "", "", "");
         $tmp2_cal_name = str_replace($search_array, $replace_array, $tmp1_cal_name);
         $tmp_cal_name = str_replace(array(" "), array(""), $tmp2_cal_name);// 比較のため半角スペースも除去
-
         if ( $trial_flag != "0" ) { $cal_name = "体験生徒"; $tmp_cal_name = $cal_name; }
 
        	$member_no = "";
         foreach ($member_list as $no => $member) {
-
+	    $member_no = -1; 
             $tmp_db_name = str_replace(array("　", " "), array(" ", ""), $member['name']);// 比較のため半角スペースも除去
             if (preg_match("/^".preg_quote($tmp_db_name,"/")."様/u", $tmp_cal_name, $name_matches, PREG_OFFSET_CAPTURE) == 1) {
                     $member_no = $member["no"];
@@ -675,17 +676,17 @@ function get_student(&$db, $student_data, $trial_flag) {
         	}
 		else if (mb_strpos($word, "三者面談1") !== FALSE) {
                 	// 入塾後、無料の三者面談
-                        $interview_flag = "1";
+                        $interview_flag = 1;
                         $work = "i1";
                 }
         	else if (mb_strpos($word, "三者面談2") !== FALSE) {
                 	// 入塾後、有料の三者面談
-                        $interview_flag = "2";
+                        $interview_flag = 2;
                         $work = "i2";
                 }
         	else if (mb_strpos($word, "面談") !== FALSE) {
                 	// 入塾前、無料の三者面談
-                        $interview_flag = "3";
+                        $interview_flag = 3;
                         $work = "i3";
                 }
         	else if (($key == 0) && (mb_strpos($word, "振替") !== FALSE || stripos($word, "alternative") !== FALSE || stripos($word, "make-up") !== FALSE || stripos($word, "make up") !== FALSE || stripos($word, "makeup") !== FALSE)) {
@@ -693,7 +694,8 @@ function get_student(&$db, $student_data, $trial_flag) {
                         $alternate = "a";
                 }
                 else if (($key == 0 && $absent_flag == 0) || ($key == 1 && $absent_flag == 1) || ($key == 1 && $absent_flag == 2) ||
-                                        ($key == 1 && $absent_flag == 3) || ($key == 1 && $alternative_flag == 1)) {
+                                        ($key == 1 && $absent_flag == 3) || ($key == 1 && $alternative_flag == 1)
+					|| ($key == 1 && $interview_flag != 0 )) {
 	                        	// 名前の部分。名前の前には「休み」しかない
                         if (preg_match("/(.*)様|(.*)/", $word, $matches, PREG_OFFSET_CAPTURE) == 1) {
        		                         // 1つ目の様のあとは、何が入力してあったとしても名前として扱わない。
@@ -706,8 +708,7 @@ function get_student(&$db, $student_data, $trial_flag) {
                                 }
                                 $tmp_cal_name = str_replace(array(" "), array(""), $cal_name);// 半角スペースも除去
                         }
-                        if ( $trial_flag != "0" ) { $tmp_cal_name = "体験生徒"; }
-
+                        if ( $trial_flag != "0" ) { $tmp_cal_name = "体験生徒"; $member_no = -1;}
                         foreach ($member_list as $no => $member) {
                     		$tmp_db_name = str_replace(array("　", " "), array(" ", ""), $member['name']);// 半角スペースも除去
                                 if (preg_match("/^".preg_quote($tmp_db_name,"/")."$/", $tmp_cal_name, $name_matches, PREG_OFFSET_CAPTURE) == 1) {
@@ -784,7 +785,7 @@ function get_event_param($db, $event, &$errArray, $target_teacher_id) {
                 }
 //		if (preg_match( "/^(\(仮\))?".$course["course_name"]."/", $tmp_event_summary, $matches, PREG_OFFSET_CAPTURE)===1) {
 		if (mb_strpos( $tmp_event_summary,$course["course_name"])!==FALSE) {
-			if ( (int)$course["course_id"] > 3 || (int)$course["course_id"] < 7 ) {
+			if ( (int)$course["course_id"] > 3 && (int)$course["course_id"] < 7 ) {
 				// 夏期講習、冬季講習、春季講習の文字列がヒットしても何もしない
 				break;
 			}
@@ -805,7 +806,6 @@ function get_event_param($db, $event, &$errArray, $target_teacher_id) {
         	$course_id  = "1";
                	$type_id = "1";
         }
-//var_dump($type_id);
 	if ($type_id == "3") {
 /**************************************
 	family
@@ -837,11 +837,6 @@ function get_event_param($db, $event, &$errArray, $target_teacher_id) {
                         $errMessage .= $event['calender_summary']."カレンダー&nbsp;".date("Y/m/d H:i", $start_timestamp)."～".date("H:i", $end_timestamp)."<br>";
                         $errMessage .= $event['summary'];
                         $errArray[] = $errMessage;
-//var_dump($tmp_event_summary);
-//var_dump($event['start']);
-//var_dump($event['end']);
-//var_dump($event['summary']);
-//                        return false;
                 }
 
                 // 「(」「)」でくくられた一人ずつ処理をする
@@ -973,7 +968,6 @@ function get_event_param($db, $event, &$errArray, $target_teacher_id) {
        			break;
        		} // if
         } // for each $place
-//var_dump($member);
 // $param_array[40]に$workを追加 , $event[summary]に変更　by T.Kobayashi
                 $param_array[] = array($event["event_id"], $member["no"],$member["id"], $member["cal_name"],$member["kind"],date("Y", $start_timestamp), date("n", $start_timestamp), date("j", $start_timestamp),$start_timestamp, date("H", $start_timestamp), date("i", $start_timestamp),$end_timestamp, date("H", $end_timestamp), date("i", $end_timestamp), $tmp_diff_hours, $lesson_id, $subject_id, $course_id, $teacher_id, $place_id, $member["absent_flag"], $member["trial_flag"], $member["interview_flag"],$member["alternative_flag"],$member["absent1_num"], $member["absent2_num"], $member["trial_num"], null, $event["calender_id"], $event["summary"], $event["event_summary"], $member["attendance_data"], $event["event_location"], $event["event_description"], $updated_timestamp, $year, $month, $event["recurringEvent"], $member["grade"], $monthly_fee_flag,$work); 
 
