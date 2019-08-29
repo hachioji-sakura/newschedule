@@ -64,7 +64,7 @@ if ($request_year < 2015 ){
 	$err_flag = true;
 	goto exit_label;
 }
-$request_year = (int)$request_myear;
+$request_year = (int)$request_year;
 
 if (!$request_month){
 	$err_flag = true;
