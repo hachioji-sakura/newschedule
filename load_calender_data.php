@@ -14,6 +14,7 @@ $request_month = str_replace('"',"",$request_month);
 
 require_once "./const/const.inc";
 require_once "./func.inc";
+require_once "./const.inc";
 require_once("./const/login_func.inc");
 require_once("./const/token.php");
 ini_set('include_path', CLIENT_LIBRALY_PATH);
@@ -63,6 +64,7 @@ if ($request_year < 2015 ){
 	$err_flag = true;
 	goto exit_label;
 }
+$request_year = (int)$request_myear;
 
 if (!$request_month){
 	$err_flag = true;
@@ -72,6 +74,7 @@ if ($request_month < 1 || $request_month > 12){
 	$err_flag = true;
 	goto exit_label;
 }
+$request_month = (int)$request_month;
 
 $request_startdate = $request_year.'-'.$request_month.'-'.'01'; 
 
@@ -94,6 +97,18 @@ $now = date('Y-m-d H:i:s');
 $dbh->setAttribute(PDO::ATTR_ERRMODE,PDO::ERRMODE_EXCEPTION);
 
 try{
+
+	$sql = "SELECT insert_timestamp FROM tbl_fixed WHERE year=? AND month=?";
+	$stmt = $dbh->prepare($sql);
+	$stmt->bindValue(1, $request_year, PDO::PARAM_INT);
+	$stmt->bindValue(2, $request_month, PDO::PARAM_INT);
+	$stmt->execute();
+	$rslt = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+	if (!$rslt){ // not found
+		print_r('target data is not commited.');
+		goto exit_label;
+	}
 
 	$sql = "SELECT id, ".
 	"repetition_id, user_id,teacher_id,student_no,ymd,starttime,endtime,lecture_id,work_id,free,cancel,alternate,altsched_id,trial_id, ".
