@@ -167,24 +167,19 @@ try{
 
 		$lecture_list = get_lecture_vector($db,$lecture_id);
 		$row_cnt = count($lecture_list) ;
-		if ($row_cnt  == 0) {
-			print_r('insert_calender_event:failed: ' . $e->getMessage());
-			goto exit_label:
+		if ($row_cnt  > 0) {
+			$lesson_id = (int)$lecture_list[lesson_id];
+			$course_id = (int)$lecture_list[course_id];
+			$subject_id = (int)$lecture_list[subject_id];
+			if ($course_id == '2' ) {		// Group
+				$evt_summary = CONST_GROUP ;
+			} else if ($course_id == '3' ) {  // family
+				$evt_summary = CONST_FAMILY ;
+			}
 		}
-		$lesson_id = (int)$lecture_list[lesson_id];
-		$course_id = (int)$lecture_list[course_id];
-		$subject_id = (int)$lecture_list[subject_id];
-
-		// making $evt_summary from tbl_schedule_onetime.
+			// making $evt_summary from tbl_schedule_onetime.
 
 		$evt_summary = '';			// Initialization.
-
-		if ($course_id == '2' ) {		// Group
-			$evt_summary = CONST_GROUP ;
-		} else if ($course_id == '3' ) {  // family
-			$evt_summary = CONST_FAMILY ;
-		}
-
 							// 休み処理
 		if ($cancel_reason == CONST_ABSENTLATE ) { 
 			$evt_summary = $evt_summary.CONST_ABSENTLATE;
@@ -196,6 +191,7 @@ try{
 		if ($cancel == 'a1') { 
 			$absent_flag = '1'; 
 			$evt_summary = $evt_summary.CONST_ABSENT1;
+			$event_diff_hours = 0;
 		} else if ($cancel == 'a2') { 
 			$absent_flag = '2';
 			$evt_summary = $evt_summary.CONST_ABSENT2;
@@ -205,11 +201,13 @@ try{
 		} else if ($cancel == 'a') { 
 			$absent_flag = '1'; 
 			$evt_summary = $evt_summary.CONST_ABSENT;
+			$event_diff_hours = 0;
 		} else { $absent_flag = '0'; }
 
 							// 振替処理
 		if ($altsched_id !== 0 ) { 
 			$alternative_flag = '1' ;  
+			$event_diff_hours = 0;
 			$evt_summary = $evt_summary.CONST_ALTERNATE;
 		}  
 							// 名前を文字列にする処理
@@ -349,7 +347,7 @@ try{
 			$stmt->bindValue(12, $event_end_timestamp, PDO::PARAM_STR);  
 			$stmt->bindValue(13, $event_end_hour, PDO::PARAM_STR);  
 			$stmt->bindValue(14, $event_end_minute, PDO::PARAM_STR);  
-			$stmt->bindValue(15, $event_diff_hours, PDO::PARAM_INT);  
+			$stmt->bindValue(15, $event_diff_hours, PDO::PARAM_STR);  
 			$stmt->bindValue(16, $lesson_id, PDO::PARAM_STR);  
 			$stmt->bindValue(17, $subject_id, PDO::PARAM_STR);  
 			$stmt->bindValue(18, $course_id, PDO::PARAM_STR);  
