@@ -166,6 +166,7 @@ try{
 		$event_diff_hours = ($event_end_timestamp - $event_start_timestamp) / (60*60);
 
 		$lecture_list = get_lecture_vector($db,$lecture_id);
+		$evt_summary = '';			// Initialization.
 		$row_cnt = count($lecture_list) ;
 		if ($row_cnt  > 0) {
 			$lesson_id = (int)$lecture_list[lesson_id];
@@ -179,7 +180,6 @@ try{
 		}
 			// making $evt_summary from tbl_schedule_onetime.
 
-		$evt_summary = '';			// Initialization.
 							// 休み処理
 		if ($cancel_reason == CONST_ABSENTLATE ) { 
 			$evt_summary = $evt_summary.CONST_ABSENTLATE;
