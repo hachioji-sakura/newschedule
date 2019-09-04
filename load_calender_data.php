@@ -205,9 +205,9 @@ try{
 		} else { $absent_flag = '0'; }
 
 							// 振替処理
-		if ($altsched_id !== 0 ) { 
+		if ($alternate !==' ' || $altsched_id !== 0 ) { 
 			$alternative_flag = '1' ;  
-			$event_diff_hours = 0;
+//			$event_diff_hours = 0;
 			$evt_summary = $evt_summary.CONST_ALTERNATE;
 		}  
 							// 名前を文字列にする処理
