@@ -209,7 +209,9 @@ try{
 			$alternative_flag = '1' ;  
 //			$event_diff_hours = 0;
 			$evt_summary = $evt_summary.CONST_ALTERNATE;
-		}  
+		} else {
+			$alternative_flag = ' ';
+		} 
 							// 名前を文字列にする処理
 		if ($user_id > 200000 ) { // staff
 			
