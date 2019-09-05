@@ -287,9 +287,8 @@ var_dump($calender['summary']);
 				$user_id = $teacher_id;
 			}
 			$place_id = $event_param[19];
-			if ( $event_param[20] == 0){
-				$calcel = ' ';
-			} else if ($event_param[20] == '1'){
+			$cancel = ' ';
+			if ($event_param[20] == '1'){
 				$cancel = 'a1';
 			} else if ($event_param[20] == '2'){
 				$cancel = 'a2';
@@ -721,7 +720,6 @@ function get_student(&$db, $student_data, $trial_flag) {
         	// absent1_num、absent2_num、trial_numは、ファミリーの時のみ使用するため、「0」を入れておく
 		// $student_arrayに”work"を追加　by T.Kobayashi
         $student_array = array("id"=>"", "no"=>$member_no, "kind"=>"student", "absent_flag"=>$absent_flag, "trial_flag"=>$trial_flag,"interview_flag"=>$interview_flag, "alternative_flag"=>$alternative_flag,"cal_name"=>$cal_name, "absent1_num"=>0, "absent2_num"=>0, "trial_num"=>0, "attendance_data"=>$student_data,"grade"=>$grade, "work"=>$work);
-
         return $student_array;
 
 }       // Endoffunction
