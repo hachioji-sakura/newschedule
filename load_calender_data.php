@@ -111,7 +111,7 @@ try{
 	}
 
 	$sql = "SELECT id, ".
-	"repetition_id, user_id,teacher_id,student_no,ymd,starttime,endtime,lecture_id,work_id,free,cancel,alternate,altsched_id,trial_id, ".
+	"repetition_id, user_id,teacher_id,student_no,ymd,starttime,endtime,lecture_id,work_id,free,cancel,cancel_reason,alternate,altsched_id,trial_id, ".
 	"absent1_num,absent2_num,trial_num,repeattimes,place_id,temporary,entrytime,updatetime,updateuser,comment,googlecal_id,googleevent_id,recurrence_id".
 	" FROM tbl_schedule_onetime WHERE ymd BETWEEN ? AND ? ";
 	$stmt = $dbh->prepare($sql);
