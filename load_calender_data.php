@@ -181,13 +181,6 @@ try{
 			// making $evt_summary from tbl_schedule_onetime.
 
 							// 休み処理
-		if ($cancel_reason == CONST_ABSENTLATE ) { 
-			$evt_summary = $evt_summary.CONST_ABSENTLATE;
-			$evt_summary = $evt_summary.CONST_COLON;
-		} else if ($cancel_reason == CONST_ABSENTOFF ) { 
-			$evt_summary = $evt_summary.CONST_ABSENTOFF;
-			$evt_summary = $evt_summary.CONST_COLON;
-		} 
 		if ($cancel == 'a1') { 
 			$absent_flag = '1'; 
 			$evt_summary = $evt_summary.CONST_ABSENT1;
@@ -204,10 +197,17 @@ try{
 			$event_diff_hours = 0;
 		} else { $absent_flag = '0'; }
 
+		if ($cancel_reason == CONST_ABSENTLATE ) { 
+			$evt_summary = $evt_summary.CONST_ABSENTLATE;
+			$evt_summary = $evt_summary.CONST_COLON;
+		} else if ($cancel_reason == CONST_ABSENTOFF ) { 
+			$evt_summary = $evt_summary.CONST_ABSENTOFF;
+			$evt_summary = $evt_summary.CONST_COLON;
+		} 
 							// 振替処理
 		if ($alternate !==' ' || $altsched_id !== 0 ) { 
 			$alternative_flag = '1' ;  
-//			$event_diff_hours = 0;
+			$event_diff_hours = 0;
 			$evt_summary = $evt_summary.CONST_ALTERNATE;
 		} else {
 			$alternative_flag = ' ';
