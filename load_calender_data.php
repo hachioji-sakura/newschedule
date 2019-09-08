@@ -40,6 +40,7 @@ define('CONST_SAN',' さん');
 define('CONST_FAMILY','ファミリー(');
 define('CONST_GROUP','グループ(');
 define('CONST_CLOSING',')');
+define('CONST_TRYSTUDENT','体験生徒');
 
 
 // ****** メイン処理ここから ******
@@ -142,6 +143,7 @@ try{
 		$repeattimes	=	$row[repeattimes];
 		$place_id	=	$row[place_id];
 		$temporary	=	$row[temporary];
+		$comment	=	$row[comment];
 		$entrytime	=	$row[entrytime];
 		$updated_timestamp	=	$row[updatetime];
 		$googlecal_id	=	$row[googlecal_id];
@@ -241,6 +243,17 @@ try{
 					$evt_summary = $evt_summary.$member_cal_name;
 					$evt_summary = $evt_summary.CONST_SAMA;
 				}
+			}
+		} else if ($user_id < 0 ) { // student not defined.
+			if ($comment !== ' '{
+				$member_cal_name = $comment;
+			} else {
+				$member_cal_name = CONST_TRYSTUDENT;
+			}
+			$evt_summary = $evt_summary.$member_cal_name;
+			$evt_summary = $evt_summary.CONST_SAMA;
+			if ($trial_num > 0 ) {
+				$grade = $trial_num;
 			}
 		}
 							// 面談を文字列にする処理

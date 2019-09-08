@@ -21,6 +21,8 @@ require_once "Google/autoload.php";
 set_time_limit(60);
 define(API_TOKEN, '7511a32c7b6fd3d085f7c6cbe66049e7');
 define(CONST_ABSENTLATE, '当日');
+define(CONST_ABSENTLATE_ENG, 'Today');
+
 // ****** メイン処理ここから ******
 
 //$result = check_user($db, "1");
@@ -139,6 +141,7 @@ var_dump($calender['summary']);
 	  	$student_no = 0; // Initialization.
 	  	$user_id = 0 ; // Initialization.
 	  	$cancel = " "; // Initialization.
+	  	$cancel_reason = " "; // Initialization.
 	  	$lecture_id = 0 ; // Initialization.
 	  	$lesson_id = 0 ; // Initialization.
 	  	$course_id = 0 ; // Initialization.
@@ -173,7 +176,6 @@ var_dump($calender['summary']);
 			}
 			$original_repeat_event = $service->events->get($googlecal_id,$event['recurringEventId']);
 			$rrule = $original_repeat_event['recurrence'][0];
-//var_dump($original_repeat_event);
 			$rrule_array = analyze_rrule($rrule);
 			$kind = $rrule_array[0][0];
 			$dayofmonth = $rrule_array[0][1];
@@ -219,22 +221,65 @@ var_dump($calender['summary']);
 
 			if ($request_repeat != 'repeat'){	
 				// 個別スケジュール	
-				$result = insert_calender_event($dbh,$event,$start_timestamp,$end_timestamp,$repetition_id,$user_id,$teacher_id,$student_no,$lecture_id,$work,$free,$cancel,$cancel_reason,$alternate,$altsched_id,$trial_id,$repeattimes,$place_id,$temporary,$comment,$googlecal_id,$googleevent_id,$recurrence_id,$absent1_num,$absent2_num,$trial_num,$monthly_fee_flag,$subject_id);
+				$result = insert_calender_event($dbh,
+								$event,
+								$start_timestamp,
+								$end_timestamp,
+								$repetition_id,
+								$user_id,
+								$teacher_id,
+								$student_no,
+								$lecture_id,
+								$work,
+								$free,
+								$cancel,
+								$cancel_reason,
+								$alternate,
+								$altsched_id,
+								$trial_id,
+								$repeattimes,
+								$place_id,
+								$temporary,
+								$comment,
+								$googlecal_id,
+								$googleevent_id,
+								$recurrence_id,
+								$absent1_num,
+								$absent2_num,
+								$trial_num,
+								$monthly_fee_flag,
+								$subject_id);
 			} else {
 				// くりかえしスケジュール	
-				$result = insert_calender_repeatevent($dbh,$event,$start_timestamp,$end_timestamp,$repetition_id,$user_id,$teacher_id,$student_no,$lecture_id,$work,$free,$place_id,$comment,$kind,$googlecal_id,$googleevent_id,$recurrence_id,$rrule,$dayofmonth,$dayofweek,$untildate,$wkst,$subject_id);
+				$result = insert_calender_repeatevent($dbh,
+								$event,
+								$start_timestamp,
+								$end_timestamp,
+								$repetition_id,
+								$user_id,
+								$teacher_id,
+								$student_no,
+								$lecture_id,
+								$work,
+								$free,
+								$place_id,
+								$comment,
+								$kind,
+								$googlecal_id,
+								$googleevent_id,
+								$recurrence_id,
+								$rrule,
+								$dayofmonth,
+								$dayofweek,
+								$untildate,
+								$wkst,
+								$subject_id);
 
 			}
 			if ($result === false) {
 				$err_flag = true;
       				break;
 			}
-                        //$sql =
-                        //        "INSERT INTO tbl_event_staff ".
-                        //        "(event_id, staff_no, staff_cal_name, event_year, event_month, event_day, event_start_timestamp, event_end_timestamp, event_diff_hours, place_id, absent_flag,".
-                        //        " cal_id, cal_summary, cal_evt_summary, cal_evt_location, cal_evt_description, cal_evt_updated_timestamp, insert_datetime, update_datetime) VALUES".
-                        //        "(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,now(),now())";
- 		
 			continue;
                
 		 }  // スタッフの場合の処理終了
@@ -287,32 +332,89 @@ var_dump($calender['summary']);
 			} else {
 				$user_id = $teacher_id;
 			}
+
 			$place_id = $event_param[19];
+
 			$cancel = ' ';
 			if ($event_param[20] == '1'){
 				$cancel = 'a1';
 			} else if ($event_param[20] == '2'){
 				$cancel = 'a2';
 			}
+
 			$trial_id = $event_param[21];
+			if ($trial_id !== ' '){			// This is a trial lesson.
+				$comment = $event_param[3];	// setting trial member's name.
+				$trial_num = $event_param[38];	// setting trial student's grade.
+			}
+
 			$interview_flag = $event_param[22];
-			$work = $event_param[40];
+
 			$alternate = ' ';
 			if ($event_param[23] == '1') {
 				$alternate = 'a';
 			}
 			$absent1_num = $event_param[24];
 			$absent2_num = $event_param[25];
-			$trial_num = $event_param[26];
 			$monthly_fee_flag = $event_param[39];
+			$work = $event_param[40];
 			$cancel_reason = $event_param[41];
 
 			if ($request_repeat != 'repeat'){	
 				// 個別スケジュール		
-			$result = insert_calender_event($dbh,$event,$start_timestamp,$end_timestamp,$repetition_id,$user_id,$teacher_id,$student_no,$lecture_id,$work,$free,$cancel,$cancel_reason,$alternate,$altsched_id,$trial_id,$repeattimes,$place_id,$temporary,$comment,$googlecal_id,$googleevent_id,$recurrence_id,$absent1_num,$absent2_num,$trial_num,$monthly_fee_flag,$subject_id);
+			$result = insert_calender_event($dbh,
+							$event,
+							$start_timestamp,
+							$end_timestamp,
+							$repetition_id,
+							$user_id,
+							$teacher_id,
+							$student_no,
+							$lecture_id,
+							$work,
+							$free,
+							$cancel,
+							$cancel_reason,
+							$alternate,
+							$altsched_id,
+							$trial_id,
+							$repeattimes,
+							$place_id,
+							$temporary,
+							$comment,
+							$googlecal_id,
+							$googleevent_id,
+							$recurrence_id,
+							$absent1_num,
+							$absent2_num,
+							$trial_num,
+							$monthly_fee_flag,
+							$subject_id);
 			} else {
 				// 繰り返しスケジュール		
-			$result = insert_calender_repeatevent($dbh,$event,$start_timestamp,$end_timestamp,$repetition_id,$user_id,$teacher_id,$student_no,$lecture_id,$work,$free,$place_id,$comment,$kind,$googlecal_id,$googleevent_id,$recurrence_id,$rrule,$dayofmonth,$dayofweek,$untildate,$wkst,$subject_id);
+			$result = insert_calender_repeatevent($dbh,
+							$event,
+							$start_timestamp,
+							$end_timestamp,
+							$repetition_id,
+							$user_id,
+							$teacher_id,
+							$student_no,
+							$lecture_id,
+							$work,
+							$free,
+							$place_id,
+							$comment,
+							$kind,
+							$googlecal_id,
+							$googleevent_id,
+							$recurrence_id,
+							$rrule,
+							$dayofmonth,
+							$dayofweek,
+							$untildate,
+							$wkst,
+							$subject_id);
 
 			}
 			if ($result === false) {
@@ -375,11 +477,7 @@ try{
 	$event_updated_timestamp = $event['updated'];
 					// tbl_schedule_onetimeに挿入する項目の設定
 	$repetition_id = 0; // 定期的スケジュールの識別子。暫定で０とする
-//	$free = ' ';  // 現時点で自由時間の予定は入力していない
-//	$repeattimes = 0; //一時的に０にしておく 
-//	$entrytime =    // 暫定的に設定しない
 	$updatetime = date('Y-m-d H-i-s',$event_updated_timestamp); 
-	$comment =  " " ;	// 一時的に０にしておく 
 			// converting work shortname into work_id
 	foreach ($work_list as $workitem) {
 		if (mb_strpos($workitem["shortname"], $work)!==FALSE) {
@@ -393,8 +491,8 @@ try{
 
 	if ($user_id==0) { goto exit_label;}
 						// not Repeting
-	$sql = "INSERT INTO tbl_schedule_onetime (".
-//	$sql = "INSERT INTO tbl_schedule_onetime_test (".
+//	$sql = "INSERT INTO tbl_schedule_onetime (".
+	$sql = "INSERT INTO tbl_schedule_onetime_test (".
 	" repetition_id, user_id,teacher_id,student_no,ymd,starttime,endtime,lecture_id,subject_expr,work_id,free,cancel,cancel_reason,alternate,altsched_id,trial_id, ".
 	" absent1_num,absent2_num,trial_num,repeattimes,place_id,temporary,entrytime,updatetime,updateuser,comment,googlecal_id,googleevent_id,recurrence_id ,monthly_fee_flag".
 	" ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
@@ -497,7 +595,6 @@ try{
 	" user_id,teacher_id,student_no,subject_expr,group_lesson_id,kind,dayofweek,dayofmonth,startdate,enddate,starttime,endtime, ".
 	" lecture_id,work_id,free,place_id,entrytime,updatetime,updateuser,comment,googlecal_id,googleevent_id,recurrence_id,rrule,wkst,untildate ".
 	" ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-//var_dump($sql);
 	$stmt = $dbh->prepare($sql);
 	$stmt->bindValue(1, $user_id, PDO::PARAM_INT);
 	$stmt->bindValue(2, $teacher_id, PDO::PARAM_INT);
@@ -578,7 +675,7 @@ function get_family(&$db, $family_data) {
                 $alternate = "a";
         }    
         		// 全員が当日の場合　cancel_reasonをセットする。その他は出席者数に応じた給与支払いになる
-        if (preg_match(CONST_ABSENTLATE, $family_data, $matches, PREG_OFFSET_CAPTURE) == 1) {
+        if (preg_match("/当日|Today/", $family_data, $matches, PREG_OFFSET_CAPTURE) == 1) {
                 $cancel_reason = CONST_ABSENTLATE;
         }    
  	$search_array = array("休み3","休み３","Absent3","absent3","休み2","休み２","Absent2","absent2","休み1","休み１","Absent1",
@@ -629,7 +726,7 @@ function get_family(&$db, $family_data) {
                 $tmp2_absent1_num = preg_match_all( "/休み[^1-2]|Absent[^1-2]|absent[^1-2]/", $family_data, $matches, PREG_PATTERN_ORDER);
                 $absent1_num = $tmp1_absent1_num + $tmp2_absent1_num;
 
-                if ($member_no) {
+                if ($absent1_num > 0 && $member_no) {
                         $member_count = count(explode(' ',$member_list[$member_no]['name']))-1;
                         if ($member_count==$absent1_num) {$absent_flag=1;$cancel="a1"; }
                         if ($member_count==$absent2_num) {$absent_flag=2;$cancel="a2"; }
@@ -637,11 +734,21 @@ function get_family(&$db, $family_data) {
         }
 	$grdade = '';
         foreach($grade_list as $key1=>$str) { if (strpos($family_data,$str)!==false) { $grade=$key1; } }
-
-        $student_array = array("id"=>"", "no"=>$member_no, "kind"=>"student", "absent_flag"=>$absent_flag, "trial_flag"=>$trial_flag,
-                               "interview_flag"=>$interview_flag,  "alternative_flag"=>$alternative_flag,
-                   "cal_name"=>$cal_name, "absent1_num"=>$absent1_num, "absent2_num"=>$absent2_num, "trial_num"=>$trial_num, "attendance_data"=>$family_data,
-                               "grade"=>$grade, "work"=>$work, "cancel_reason"=>$cancel_reason);
+        $student_array = array("id"=>"", 
+				"no"=>$member_no, 
+				"kind"=>"student", 
+				"absent_flag"=>$absent_flag, 
+				"trial_flag"=>$trial_flag,
+				"interview_flag"=>$interview_flag, 
+				"alternative_flag"=>$alternative_flag,
+                   		"cal_name"=>$cal_name, 
+				"absent1_num"=>$absent1_num, 
+				"absent2_num"=>$absent2_num, 
+				"trial_num"=>$trial_num,
+				"attendance_data"=>$family_data,
+				"grade"=>$grade, 
+				"work"=>$work, 
+				"cancel_reason"=>$cancel_reason);
 
         return $student_array;
 }  // end of function get_family()
@@ -665,6 +772,18 @@ function get_student(&$db, $student_data, $trial_flag) {
         $grade='';
         foreach ($words as $key => $word) {
                 $word = trim($word);
+                if (mb_strpos($word, "小１") !== FALSE )  { $word = "小1"; }
+                if (mb_strpos($word, "小２") !== FALSE )  { $word = "小2"; }
+                if (mb_strpos($word, "小３") !== FALSE )  { $word = "小3"; }
+                if (mb_strpos($word, "小４") !== FALSE )  { $word = "小4"; }
+                if (mb_strpos($word, "小５") !== FALSE )  { $word = "小5"; }
+                if (mb_strpos($word, "小６") !== FALSE )  { $word = "小6"; }
+                if (mb_strpos($word, "中１") !== FALSE )  { $word = "中1"; }
+                if (mb_strpos($word, "中２") !== FALSE )  { $word = "中2"; }
+                if (mb_strpos($word, "中３") !== FALSE )  { $word = "中3"; }
+                if (mb_strpos($word, "高１") !== FALSE )  { $word = "高1"; }
+                if (mb_strpos($word, "高２") !== FALSE )  { $word = "高2"; }
+                if (mb_strpos($word, "高３") !== FALSE )  { $word = "高3"; }
                 foreach($grade_list as $key1=>$str) { 
 			if (strpos($word,$str)!==false) { $grade=$key1; }
 		}
@@ -726,15 +845,27 @@ function get_student(&$db, $student_data, $trial_flag) {
                                 }
                         } // End:foreach ($member_list as $id => $member)
                 }
-        	else if (mb_strpos($word, CONST_ABSENTLATE) !== FALSE) {
+        	else if (mb_strpos($word, CONST_ABSENTLATE) !== FALSE || mb_strpos($word, CONST_ABSENTLATE_ENG) !== FALSE ) {
                 	// 当日
                         $cancel_reason = CONST_ABSENTLATE;
                 }
         }       // End:foreach ($words as $key => $word)
-        	// absent1_num、absent2_num、trial_numは、ファミリーの時のみ使用するため、「0」を入れておく
-		// $student_arrayに”work"を追加　by T.Kobayashi
-		// $student_arrayに”cancel_reasonk"を追加　by T.Kobayashi
-        $student_array = array("id"=>"", "no"=>$member_no, "kind"=>"student", "absent_flag"=>$absent_flag, "trial_flag"=>$trial_flag,"interview_flag"=>$interview_flag, "alternative_flag"=>$alternative_flag,"cal_name"=>$cal_name, "absent1_num"=>0, "absent2_num"=>0, "trial_num"=>0, "attendance_data"=>$student_data,"grade"=>$grade, "work"=>$work, "cancel_reason"=>$cancel_reason);
+		// $student_arrayに"work" と”cancel_reasonk"を追加　by T.Kobayashi
+        $student_array = array("id"=>"", 
+				"no"=>$member_no, 
+				"kind"=>"student", 
+				"absent_flag"=>$absent_flag, 
+				"trial_flag"=>$trial_flag,
+				"interview_flag"=>$interview_flag, 
+				"alternative_flag"=>$alternative_flag,
+				"cal_name"=>$cal_name, 
+				"absent1_num"=>0, 
+				"absent2_num"=>0, 
+				"trial_num"=>0, 
+				"attendance_data"=>$student_data,
+				"grade"=>$grade, 
+				"work"=>$work, 
+				"cancel_reason"=>$cancel_reason);
         return $student_array;
 
 }       // Endoffunction
@@ -982,7 +1113,49 @@ function get_event_param($db, $event, &$errArray, $target_teacher_id) {
        		} // if
         } // for each $place
 // $param_array[40]に$workを追加 , $event[summary]に変更　by T.Kobayashi
-                $param_array[] = array($event["event_id"], $member["no"],$member["id"], $member["cal_name"],$member["kind"],date("Y", $start_timestamp), date("n", $start_timestamp), date("j", $start_timestamp),$start_timestamp, date("H", $start_timestamp), date("i", $start_timestamp),$end_timestamp, date("H", $end_timestamp), date("i", $end_timestamp), $tmp_diff_hours, $lesson_id, $subject_id, $course_id, $teacher_id, $place_id, $member["absent_flag"], $member["trial_flag"], $member["interview_flag"],$member["alternative_flag"],$member["absent1_num"], $member["absent2_num"], $member["trial_num"], null, $event["calender_id"], $event["summary"], $event["event_summary"], $member["attendance_data"], $event["event_location"], $event["event_description"], $updated_timestamp, $year, $month, $event["recurringEvent"], $member["grade"], $monthly_fee_flag, $work, $member["cancel_reason"]); 
+                $param_array[] = array(
+				$event["event_id"], 
+				$member["no"],
+				$member["id"], 
+				$member["cal_name"],
+				$member["kind"],
+				date("Y", $start_timestamp), 
+				date("n", $start_timestamp), 
+				date("j", $start_timestamp),
+				$start_timestamp, 
+				date("H", $start_timestamp), 
+				date("i", $start_timestamp),
+				$end_timestamp, 
+				date("H", $end_timestamp), 
+				date("i", $end_timestamp), 
+				$tmp_diff_hours, 
+				$lesson_id, 
+				$subject_id, 
+				$course_id, 
+				$teacher_id, 
+				$place_id, 
+				$member["absent_flag"], 
+				$member["trial_flag"], 
+				$member["interview_flag"],
+				$member["alternative_flag"],
+				$member["absent1_num"], 
+				$member["absent2_num"], 
+				$member["trial_num"], 
+				null, 
+				$event["calender_id"],
+				$event["summary"], 
+				$event["event_summary"], 
+				$member["attendance_data"], 
+				$event["event_location"], 
+				$event["event_description"], 
+				$updated_timestamp, 
+				$year, 
+				$month, 
+				$event["recurringEvent"], 
+				$member["grade"], 
+				$monthly_fee_flag, 
+				$work, 
+				$member["cancel_reason"]); 
 
         } // end of foreach
         return $param_array;
