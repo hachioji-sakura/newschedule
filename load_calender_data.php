@@ -257,6 +257,7 @@ try{
 			}
 		}
 							// 面談を文字列にする処理
+		$interview_flag = '';   
 		if ($work_id == 1){
 			$interview_flag = '1';   
 			$evt_summary = $evt_summary.CONST_INTERVIEW1;
