@@ -288,11 +288,11 @@ try{
 			$evt_summary = $evt_summary.CONST_TRIAL;
 		}  
 		if ($cancel_reason == CONST_ABSENTLATE ) { 
+			$evt_summary = $evt_summary.CONST_COLON;
 			$evt_summary = $evt_summary.CONST_ABSENTLATE;
-			$evt_summary = $evt_summary.CONST_COLON;
 		} else if ($cancel_reason == CONST_ABSENTOFF ) { 
-			$evt_summary = $evt_summary.CONST_ABSENTOFF;
 			$evt_summary = $evt_summary.CONST_COLON;
+			$evt_summary = $evt_summary.CONST_ABSENTOFF;
 		} 
 
 
