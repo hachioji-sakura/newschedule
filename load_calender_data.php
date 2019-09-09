@@ -245,7 +245,7 @@ try{
 				}
 			}
 		} else if ($user_id < 0 ) { // student not defined.
-			if ($comment !== ' '{
+			if ($comment !== ' '){
 				$member_cal_name = $comment;
 			} else {
 				$member_cal_name = CONST_TRYSTUDENT;
@@ -257,13 +257,13 @@ try{
 			}
 		}
 							// 面談を文字列にする処理
-		if ($work == 'i1'){
+		if ($work_id == 1){
 			$interview_flag = '1';   
 			$evt_summary = $evt_summary.CONST_INTERVIEW1;
-		} else if ($work == 'i2'){
+		} else if ($work_id == 2){
 			$interview_flag = '2';   
 			$evt_summary = $evt_summary.CONST_INTERVIEW2;
-		} else if ($work == 'i3'){
+		} else if ($work_id == 3){
 			$interview_flag = '3';   
 			$evt_summary = $evt_summary.CONST_INTERVIEW3;
 		}

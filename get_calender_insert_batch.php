@@ -485,6 +485,7 @@ try{
                         break;  // for each
                 }
         }  // end of for each.
+
 	if ($subject_id) {
              $subject_expr = $subject_list[$subject_id];
         }
@@ -1113,6 +1114,9 @@ function get_event_param($db, $event, &$errArray, $target_teacher_id) {
        		} // if
         } // for each $place
 // $param_array[40]に$workを追加 , $event[summary]に変更　by T.Kobayashi
+
+		if (!$member["work"]){ $member["work"] = $work; }	// if empty then set default work.
+
                 $param_array[] = array(
 				$event["event_id"], 
 				$member["no"],
@@ -1154,7 +1158,7 @@ function get_event_param($db, $event, &$errArray, $target_teacher_id) {
 				$event["recurringEvent"], 
 				$member["grade"], 
 				$monthly_fee_flag, 
-				$work, 
+				$member["work"], 
 				$member["cancel_reason"]); 
 
         } // end of foreach
