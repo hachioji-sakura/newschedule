@@ -198,14 +198,6 @@ try{
 			$evt_summary = $evt_summary.CONST_ABSENT;
 			$event_diff_hours = 0;
 		} else { $absent_flag = '0'; }
-
-		if ($cancel_reason == CONST_ABSENTLATE ) { 
-			$evt_summary = $evt_summary.CONST_ABSENTLATE;
-			$evt_summary = $evt_summary.CONST_COLON;
-		} else if ($cancel_reason == CONST_ABSENTOFF ) { 
-			$evt_summary = $evt_summary.CONST_ABSENTOFF;
-			$evt_summary = $evt_summary.CONST_COLON;
-		} 
 							// 振替処理
 		if ($alternate !==' ' || $altsched_id !== 0 ) { 
 			$alternative_flag = '1' ;  
@@ -214,6 +206,7 @@ try{
 		} else {
 			$alternative_flag = ' ';
 		} 
+
 							// 名前を文字列にする処理
 		if ($user_id > 200000 ) { // staff
 			
@@ -294,6 +287,13 @@ try{
 			$trial_flag = '1'; 
 			$evt_summary = $evt_summary.CONST_TRIAL;
 		}  
+		if ($cancel_reason == CONST_ABSENTLATE ) { 
+			$evt_summary = $evt_summary.CONST_ABSENTLATE;
+			$evt_summary = $evt_summary.CONST_COLON;
+		} else if ($cancel_reason == CONST_ABSENTOFF ) { 
+			$evt_summary = $evt_summary.CONST_ABSENTOFF;
+			$evt_summary = $evt_summary.CONST_COLON;
+		} 
 
 
 		if ($user_id > 200000 ) {	// スタッフの場合
