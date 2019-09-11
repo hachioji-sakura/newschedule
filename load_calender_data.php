@@ -263,6 +263,21 @@ try{
 		}
 
 		if ($course_id == 2 || $course_id == 3 ) {		// Group or Family
+							// 体験を文字列にする処理
+			if ($trial_id === '0' || $trial_id === ' ' ){
+				$trial_flag = '0'; 
+			} else {
+				$trial_flag = '1'; 
+				$evt_summary = $evt_summary.CONST_COLON;
+				$evt_summary = $evt_summary.CONST_TRIAL;
+			}  
+			if ($cancel_reason == CONST_ABSENTLATE ) { 
+				$evt_summary = $evt_summary.CONST_COLON;
+				$evt_summary = $evt_summary.CONST_ABSENTLATE;
+			} else if ($cancel_reason == CONST_ABSENTOFF ) { 
+				$evt_summary = $evt_summary.CONST_COLON;
+				$evt_summary = $evt_summary.CONST_ABSENTOFF;
+			} 
 			$evt_summary = $evt_summary.CONST_CLOSING ;
 		}
 
@@ -280,19 +295,22 @@ try{
 				}
 			}
 		}
+		if ($course_id !== 2 && $course_id !== 3 ) {		// Neither Group nor Family
 							// 体験を文字列にする処理
-		if ($trial_id === '0' || $trial_id === ' ' ){
-			$trial_flag = '0'; 
-		} else {
-			$trial_flag = '1'; 
-			$evt_summary = $evt_summary.CONST_TRIAL;
-		}  
-		if ($cancel_reason == CONST_ABSENTLATE ) { 
-			$evt_summary = $evt_summary.CONST_COLON;
-			$evt_summary = $evt_summary.CONST_ABSENTLATE;
-		} else if ($cancel_reason == CONST_ABSENTOFF ) { 
-			$evt_summary = $evt_summary.CONST_COLON;
-			$evt_summary = $evt_summary.CONST_ABSENTOFF;
+			if ($trial_id === '0' || $trial_id === ' ' ){
+				$trial_flag = '0'; 
+			} else {
+				$trial_flag = '1'; 
+				$evt_summary = $evt_summary.CONST_COLON;
+				$evt_summary = $evt_summary.CONST_TRIAL;
+			}  
+			if ($cancel_reason == CONST_ABSENTLATE ) { 
+				$evt_summary = $evt_summary.CONST_COLON;
+				$evt_summary = $evt_summary.CONST_ABSENTLATE;
+			} else if ($cancel_reason == CONST_ABSENTOFF ) { 
+				$evt_summary = $evt_summary.CONST_COLON;
+				$evt_summary = $evt_summary.CONST_ABSENTOFF;
+			} 
 		} 
 
 
