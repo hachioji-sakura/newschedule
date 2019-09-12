@@ -207,7 +207,6 @@ try{
 			$alternative_flag = ' ';
 		} 
 
-							// 名前を文字列にする処理
 		if ($user_id > 200000 ) { // staff
 			
 			$sql = "SELECT name FROM tbl_staff where no = ?";
@@ -313,6 +312,10 @@ try{
 			} 
 		} 
 
+		if ($recurrence_id !== 0 ) { 
+							// 繰り返しスケジュールを表す
+			$recurringEvent = "1";
+		} 
 
 		if ($user_id > 200000 ) {	// スタッフの場合
 			$staff_no = $user_id - 200000 ;
@@ -351,7 +354,6 @@ try{
 			} 
 			$member_kind = 'student';
 
-			$recurringEvent = '0' ;
 			$repeat_flag = $repeattimes;  
 
                 	$sql = "INSERT INTO tbl_event (".

@@ -476,7 +476,9 @@ try{
 	$ymd = $startymd;	
 	$event_updated_timestamp = $event['updated'];
 					// tbl_schedule_onetimeに挿入する項目の設定
-	$repetition_id = 0; // 定期的スケジュールの識別子。暫定で０とする
+	if ($recurrence_id !== " ") {
+		$repetition_id = -1; // 定期的スケジュールの識別子。暫定で-1とする
+	}
 	$updatetime = date('Y-m-d H-i-s',$event_updated_timestamp); 
 			// converting work shortname into work_id
 	foreach ($work_list as $workitem) {
