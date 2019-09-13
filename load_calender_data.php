@@ -333,7 +333,7 @@ try{
 			$stmt->bindValue(6, $event_day, PDO::PARAM_STR);  
 			$stmt->bindValue(7, $event_start_timestamp, PDO::PARAM_STR);  
 			$stmt->bindValue(8, $event_end_timestamp, PDO::PARAM_STR);  
-			$stmt->bindValue(9, $event_diff_hours, PDO::PARAM_INT);  
+			$stmt->bindValue(9, $event_diff_hours, PDO::PARAM_STR);  
 			$stmt->bindValue(10, $place_id, PDO::PARAM_STR);  
 			$stmt->bindValue(11, $absent_flag, PDO::PARAM_STR);  
 			$stmt->bindValue(12, $googlecal_id, PDO::PARAM_STR);   
