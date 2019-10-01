@@ -178,6 +178,7 @@ var_dump($calender['summary']);
 			$temporary = 1;
 			$tmp_event_summary = str_replace(array("(仮)"), array(""), trim($event_summary));
 		}
+		$googleexpression = $tmp_event_summary;
 		$recurrence_id = "";
 		$rrule = "";
 		$recurrence_id = $event['recurringEventId'] ;
@@ -256,6 +257,7 @@ var_dump($calender['summary']);
 								$temp_name,
 								$googlecal_id,
 								$googleevent_id,
+								$googleexpression,
 								$recurrence_id,
 								$absent1_num,
 								$absent2_num,
@@ -401,6 +403,7 @@ var_dump($calender['summary']);
 							$temp_name,
 							$googlecal_id,
 							$googleevent_id,
+							$googleexpression,
 							$recurrence_id,
 							$absent1_num,
 							$absent2_num,
@@ -474,7 +477,7 @@ var_dump($calender['summary']);
 
 /************* Single Insert ****************/
 
-function insert_calender_event(&$dbh,$event,$start_timestamp,$end_timestamp,$repetition_id,$user_id,$teacher_id,$student_no,$lecture_id,$work,$free,$cancel,$cancel_reason,$alternate,$altsched_id,$trial_id,$repeattimes,$place_id,$temporary,$comment,$temp_name,$googlecal_id,$googleevent_id,$recurrence_id,$absent1_num,$absent2_num,$trial_num,$monthly_fee_flag,$subject_id ) {
+function insert_calender_event(&$dbh,$event,$start_timestamp,$end_timestamp,$repetition_id,$user_id,$teacher_id,$student_no,$lecture_id,$work,$free,$cancel,$cancel_reason,$alternate,$altsched_id,$trial_id,$repeattimes,$place_id,$temporary,$comment,$temp_name,$googlecal_id,$googleevent_id,$googleexpression,$recurrence_id,$absent1_num,$absent2_num,$trial_num,$monthly_fee_flag,$subject_id ) {
 
 global $work_list;
 global $subject_list;
@@ -513,9 +516,10 @@ try{
 						// not Repeting
 //	$sql = "INSERT INTO tbl_schedule_onetime (".
 	$sql = "INSERT INTO tbl_schedule_onetime_test (".
-	" repetition_id, user_id,teacher_id,student_no,ymd,starttime,endtime,lecture_id,subject_expr,work_id,free,cancel,cancel_reason,alternate,altsched_id,trial_id, ".
-	" absent1_num,absent2_num,trial_num,repeattimes,place_id,temporary,entrytime,updatetime,updateuser,comment,temp_name,googlecal_id,googleevent_id,recurrence_id ,monthly_fee_flag".
-	" ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+	" repetition_id, user_id,teacher_id,student_no,ymd,starttime,endtime,lecture_id,subject_expr,work_id,free,cancel,cancel_reason, ".
+	" alternate,altsched_id,trial_id, absent1_num,absent2_num,trial_num,repeattimes,place_id,temporary,entrytime,updatetime,updateuser, ".
+	" comment,temp_name,googlecal_id,googleevent_id,googleexpression,recurrence_id ,monthly_fee_flag".
+	" ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 	$stmt = $dbh->prepare($sql);
 	$stmt->bindValue(1, $repetition_id, PDO::PARAM_INT);
 	$stmt->bindValue(2, $user_id, PDO::PARAM_INT);
@@ -546,8 +550,9 @@ try{
 	$stmt->bindValue(27, $temp_name, PDO::PARAM_STR);
 	$stmt->bindValue(28, $googlecal_id, PDO::PARAM_STR);
 	$stmt->bindValue(29, $googleevent_id, PDO::PARAM_STR);
-	$stmt->bindValue(30, $recurrence_id, PDO::PARAM_STR);
-	$stmt->bindValue(31, $monthly_fee_flag, PDO::PARAM_INT);
+	$stmt->bindValue(30, $googleexpression, PDO::PARAM_STR);
+	$stmt->bindValue(31, $recurrence_id, PDO::PARAM_STR);
+	$stmt->bindValue(32, $monthly_fee_flag, PDO::PARAM_INT);
 //var_dump($sql);
 	$stmt->execute();
 exit_label:
@@ -581,6 +586,7 @@ try{
 
 		// 既に当該エントリが登録済かをチェックする
 	$sql = "SELECT count(*) AS COUNT FROM tbl_schedule_repeat WHERE delflag = 0 AND user_id = ? AND recurrence_id = ? ";
+//	$sql = "SELECT count(*) AS COUNT FROM tbl_schedule_repeat_test WHERE delflag = 0 AND user_id = ? AND recurrence_id = ? ";
        	$stmt = $dbh->prepare($sql);
 	$stmt->bindValue(1, $user_id, PDO::PARAM_INT);
 	$stmt->bindValue(2, $recurrence_id, PDO::PARAM_STR);
@@ -613,6 +619,7 @@ try{
 
 						// Repeting
 	$sql = "INSERT INTO tbl_schedule_repeat (".
+//	$sql = "INSERT INTO tbl_schedule_repeat_test (".
 	" user_id,teacher_id,student_no,subject_expr,group_lesson_id,kind,dayofweek,dayofmonth,startdate,enddate,starttime,endtime, ".
 	" lecture_id,work_id,free,place_id,entrytime,updatetime,updateuser,comment,googlecal_id,googleevent_id,recurrence_id,rrule,wkst,untildate ".
 	" ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
@@ -909,6 +916,7 @@ function get_event_param($db, $event, &$errArray, $target_teacher_id) {
         global $place_list;
         global $floor_list;
         global $course_list;
+        global $family_member_list;
         // ■初期処理
         // 全角のスペース、かっこ、セミコロン、アスタリスクを半角に
         $event_summary = str_replace(array("　", "（", "）", "：", "︰", "＊"), array(" ", "(", ")", ":", ":", "*"), trim($event['summary']));
@@ -987,8 +995,25 @@ function get_event_param($db, $event, &$errArray, $target_teacher_id) {
                         $errArray[] = $errMessage;
                         return false;
                 }
-                $student_no = get_family($db, $matches[1][0]);
-		$member_array[] = $student_no;
+                $family_desc = get_family($db, $matches[1][0]);
+
+					// split the family lecture into individuals.
+					// setting the first member.
+		$family_member1 = $family_desc;
+					// setting the second member.
+		$family_member2 = $family_desc;
+
+       		foreach ($family_member_list as $family_record) {
+       	                if ($family_record['family_no']=== $family_member1['no']) {
+      		         	$family_member1['no'] = $family_record['member1_no'];
+      		         	$family_member2['no'] = $family_record['member2_no'];
+               		         break; // for each
+                       	} // end of if
+                } // end of foreach
+					// adding the first member.
+		$member_array[] = $family_member1;
+					// adding the second member.
+		$member_array[] = $family_member2;
 
  	} else if ($type_id == "2") {
 /**************************************

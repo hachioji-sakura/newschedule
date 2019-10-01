@@ -321,9 +321,9 @@ try{
 			$staff_no = $user_id - 200000 ;
                         $sql = "INSERT INTO tbl_event_staff ".
                         "(event_id, staff_no, staff_cal_name, event_year, event_month, event_day, event_start_timestamp, ".
-                        " event_end_timestamp, event_diff_hours, place_id, absent_flag,".
-                        " cal_id, cal_summary, cal_evt_summary, cal_evt_location, cal_evt_description, update_datetime".
-                        " ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+                        " event_end_timestamp, event_diff_hours, absent_flag,".
+                        " cal_id, cal_summary, cal_evt_summary, cal_evt_location, cal_evt_description, update_datetime, place_floors".
+                        " ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 			$stmt = $db->prepare($sql);
 			$stmt->bindValue(1, $schedule_id, PDO::PARAM_INT);
 			$stmt->bindValue(2, $staff_no, PDO::PARAM_INT);
@@ -334,14 +334,14 @@ try{
 			$stmt->bindValue(7, $event_start_timestamp, PDO::PARAM_STR);  
 			$stmt->bindValue(8, $event_end_timestamp, PDO::PARAM_STR);  
 			$stmt->bindValue(9, $event_diff_hours, PDO::PARAM_STR);  
-			$stmt->bindValue(10, $place_id, PDO::PARAM_STR);  
-			$stmt->bindValue(11, $absent_flag, PDO::PARAM_STR);  
-			$stmt->bindValue(12, $googlecal_id, PDO::PARAM_STR);   
-			$stmt->bindValue(13, $googlecal_summary, PDO::PARAM_STR);  // NULL値をセット 
-			$stmt->bindValue(14, $evt_summary, PDO::PARAM_STR);   
-			$stmt->bindValue(15, $googlecal_evt_location, PDO::PARAM_STR);  // NULL値をセット 
-			$stmt->bindValue(16, $googlecal_evt_description, PDO::PARAM_STR);  // NULL値をセット 
-			$stmt->bindValue(17, $now, PDO::PARAM_STR);   
+			$stmt->bindValue(10, $absent_flag, PDO::PARAM_STR);  
+			$stmt->bindValue(11, $googlecal_id, PDO::PARAM_STR);   
+			$stmt->bindValue(12, $googlecal_summary, PDO::PARAM_STR);  // NULL値をセット 
+			$stmt->bindValue(13, $evt_summary, PDO::PARAM_STR);   
+			$stmt->bindValue(14, $googlecal_evt_location, PDO::PARAM_STR);  // NULL値をセット 
+			$stmt->bindValue(15, $googlecal_evt_description, PDO::PARAM_STR);  // NULL値をセット 
+			$stmt->bindValue(16, $now, PDO::PARAM_STR);   
+			$stmt->bindValue(17, $place_id, PDO::PARAM_INT);  // setting place_floors. 
 			$stmt->execute();
                
 		   // スタッフの場合の処理終了
@@ -363,7 +363,7 @@ try{
                         " event_start_timestamp, event_start_hour, event_start_minute, ".
                         " event_end_timestamp, event_end_hour, event_end_minute, ".
                         " event_diff_hours, ".
-                        " lesson_id, subject_id, course_id, teacher_id, place_id, absent_flag, trial_flag, interview_flag, alternative_flag,".
+                        " lesson_id, subject_id, course_id, teacher_id, place_floors, absent_flag, trial_flag, interview_flag, alternative_flag,".
                         " absent1_num, absent2_num, trial_num, repeat_flag, ".
                         " cal_id, cal_summary, cal_evt_summary, cal_attendance_data, cal_evt_location, cal_evt_description, update_datetime, seikyu_year, seikyu_month,".
                         " recurringEvent, grade, monthly_fee_flag ".
@@ -387,8 +387,8 @@ try{
 			$stmt->bindValue(16, $lesson_id, PDO::PARAM_STR);  
 			$stmt->bindValue(17, $subject_id, PDO::PARAM_STR);  
 			$stmt->bindValue(18, $course_id, PDO::PARAM_STR);  
-			$stmt->bindValue(19, $teacher_id, PDO::PARAM_STR);  
-			$stmt->bindValue(20, $place_id, PDO::PARAM_STR);  
+			$stmt->bindValue(19, $teacher_id, PDO::PARAM_STR);
+			$stmt->bindValue(20, $place_id, PDO::PARAM_INT); 	// setting place_floors column . 
 			$stmt->bindValue(21, $absent_flag, PDO::PARAM_STR);
 			$stmt->bindValue(22, $trial_flag, PDO::PARAM_STR);  
 			$stmt->bindValue(23, $interview_flag, PDO::PARAM_STR);  
