@@ -323,7 +323,7 @@ try{
                         "(event_id, staff_no, staff_cal_name, event_year, event_month, event_day, event_start_timestamp, ".
                         " event_end_timestamp, event_diff_hours, absent_flag,".
                         " cal_id, cal_summary, cal_evt_summary, cal_evt_location, cal_evt_description, update_datetime, place_floors".
-                        " ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+                        " ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 			$stmt = $db->prepare($sql);
 			$stmt->bindValue(1, $schedule_id, PDO::PARAM_INT);
 			$stmt->bindValue(2, $staff_no, PDO::PARAM_INT);
