@@ -3,16 +3,31 @@
 
 ini_set( 'display_errors', 0 );
 
-$request_year = $argv[1];
-if (!$request_year){
-	$err_flag = true;
-	$message = 'Syntax error: php get_season_calender_insert_batch.php YEAR COURSE_ID';
-	goto error_label;
-}
-$request_course_id = $argv[2];
+$request_course_id = $argv[1];
 if (!$request_course_id){
 	$err_flag = true;
-	$message = 'Syntax error: php get_season_calender_insert_batch.php YEAR COURSE_ID';
+	$message = 'Syntax error: php get_season_calender_insert_batch.php COURSE_ID YEAR MONTH';
+	goto error_label;
+}
+
+$request_year = $argv[2];
+if (!$request_year){
+	$err_flag = true;
+	$message = 'Syntax error: php get_season_calender_insert_batch.php COURSE_ID YEAR MONTH';
+	goto error_label;
+}
+
+$request_month = $argv[3] ;
+if (!$request_month){
+	$err_flag = true;
+	$message = 'Syntax error: php get_season_calender_insert_batch.php COURSE_ID YEAR MONTH';
+	goto error_label;
+}
+
+$request_force = $argv[4] ;
+if ($request_force && $request_force != 'force'){
+	$err_flag = true;
+	$message = 'Syntax error: php get_season_calender_insert_batch.php COURSE_ID YEAR MONTH force';
 	goto error_label;
 }
 
@@ -41,7 +56,7 @@ $subject_list = get_subject_list($db);
 			// コースリストの取得
 $course_list = get_course_list($db);
 
-$now = date('Y/m/d');
+$now = date('Y-m-d H:i:s');
 $dbh=new PDO('mysql:host=mysql720.db.sakura.ne.jp;dbname=hachiojisakura_calendar;charset=utf8',DB_USER,DB_PASSWD2);
 $dbh->setAttribute(PDO::ATTR_ERRMODE,PDO::ERRMODE_EXCEPTION);
 
@@ -50,35 +65,50 @@ switch ($request_course_id ) {
 case '4' :  // Summer seminar
 	$target_year1 = $request_year;
 	$target_year2 = '';
+	$target_work_id = 10;
 	break;
 case '5' :   // Winter seminar
 	$target_year1 = $request_year;
 	$next_year = (int)$target_year1 + 1;
 	$target_year2 = (string)$next_year ;
+	$target_work_id = 11;
 	break;
 case '6' :   // Spring seminar
 	$target_year1 = $request_year;
 	$target_year2 = '';
+	$target_work_id = 12;
 	break;
 case '9' :   // Weekend seminar
 	$target_year1 = $request_year;
 	$target_year2 = '';
+	$target_work_id = 13;
 	break;
 } // switch.
-			// tbl_season_scheduleからデータの取得
-$sql = "SELECT date,stime,etime,lnum,teacher_no,member_no,lesson_id,subject_id,course_id FROM tbl_season_schedule  WHERE  course_id=? AND ( date LIKE ? ";
-if ($target_year2) {
-	$sql = $sql ." OR date LIKE ? ";
+			// check whether schedule for the month is set.
+if (!$request_force) {	// force option is not specified.
+ 	$startofmonth = $request_year.'-'.$request_month.'-01';
+ 	$endofmonth = $request_year.'-'.$request_month.'-31';
+//	$sql = "SELECT COUNT(*) AS COUNT FROM tbl_schedule_onetime WHERE course_id=? AND ymd BETWEEN ? AND ?";
+	$sql = "SELECT COUNT(*) AS COUNT FROM tbl_schedule_onetime_test WHERE work_id=? AND ymd BETWEEN ? AND ?";
+	$stmt = $dbh->prepare($sql);
+	$stmt->bindValue(1, $target_work_id, PDO::PARAM_INT);
+	$stmt->bindValue(2, $startofmonth, PDO::PARAM_STR);
+	$stmt->bindValue(3, $endofmonth, PDO::PARAM_STR);
+	$stmt->execute();
+	$already_exist = (int)$stmt->fetchColumn();
+	if ($already_exist > 0) {
+		$err_flag = true;
+		$message = 'The schedule is already registerd. If you want append the data, use force option.';
+		goto error_label;
+	}
 }
-$sql = $sql ." ) ";
+
+			// tbl_season_scheduleからデータの取得
+$sql = "SELECT date,stime,etime,lnum,teacher_no,member_no,lesson_id,subject_id,course_id FROM tbl_season_schedule WHERE course_id=? AND date LIKE ?";
 $stmt = $db->prepare($sql);
 $stmt->bindValue(1, $request_course_id, PDO::PARAM_STR);
-$target_year1_percent = $target_year1.'%';
+$target_year1_percent = $target_year1.'/'.$monnth_str.'%';
 $stmt->bindValue(2, $target_year1_percent, PDO::PARAM_STR);
-if ($target_year2) {
-	$target_year2_percent = $target_year2.'%';
-	$stmt->bindValue(3, $target_year2_percent, PDO::PARAM_STR);
-}
 $stmt->execute();
 $season_schedule_array = $stmt->fetchAll(PDO::FETCH_ASSOC);
 foreach ( $season_schedule_array as $row ) {
@@ -196,6 +226,7 @@ function insert_calender_event(&$dbh,$start_timestamp,$end_timestamp,$repetition
 
 global $work_list;
 global $subject_list;
+global $now;
 
 try{
 //	$event_id = $event["id"];
@@ -257,7 +288,7 @@ try{
 	$stmt->bindValue(20, $repeattimes, PDO::PARAM_INT);
 	$stmt->bindValue(21, $place_id, PDO::PARAM_INT);
 	$stmt->bindValue(22, $temporary, PDO::PARAM_INT);
-	$stmt->bindValue(23, $entrytime, PDO::PARAM_STR);
+	$stmt->bindValue(23, $now, PDO::PARAM_STR);
 	$stmt->bindValue(24, $event_updated_timestamp, PDO::PARAM_STR);
 	$stmt->bindValue(25, $updateuser, PDO::PARAM_INT);
 	$stmt->bindValue(26, $comment, PDO::PARAM_STR);
