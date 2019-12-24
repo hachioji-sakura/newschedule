@@ -67,28 +67,34 @@ $place_list[8] = array("no"=>"8","name"=>"豊田校","calendar_name_list"=>array
 $place_list[9] = array("no"=>"9","name"=>"子安校","calendar_name_list"=>array("ピアノ","習い事_子安校","塾_子安校"));
 $place_list[10] = array("no"=>"10","name"=>"国立校","calendar_name_list"=>array("塾_国立校","English_Kunitachi"));
 
-$floor_list[1] = array("no"=>"1","name"=>"日野市豊田校","calendar_name"=>"English_toyoda");
-$floor_list[2] = array("no"=>"1","name"=>"日野市豊田校","calendar_name"=>"塾_豊田校");
-$floor_list[3] = array("no"=>"2","name"=>"北口校２Ｆ","calendar_name"=>"事務_北口校");
-$floor_list[4] = array("no"=>"2","name"=>"北口校２Ｆ","calendar_name"=>"事務_本校");
-$floor_list[5] = array("no"=>"3","name"=>"北口校３Ｆ","calendar_name"=>"English_north_3F");
-$floor_list[6] = array("no"=>"3","name"=>"北口校３Ｆ","calendar_name"=>"塾_北口校_3F");
-$floor_list[7] = array("no"=>"3","name"=>"北口校３Ｆ","calendar_name"=>"習い事_北口校_3F");
-$floor_list[8] = array("no"=>"4","name"=>"北口校４Ｆ","calendar_name"=>"English_north_4F");
-$floor_list[9] = array("no"=>"4","name"=>"北口校４Ｆ","calendar_name"=>"塾_北口校_4F");
-$floor_list[10] = array("no"=>"5","name"=>"南口校","calendar_name"=>"English_south");
-$floor_list[11] = array("no"=>"5","name"=>"南口校","calendar_name"=>"習い事_南口校");
-$floor_list[12] = array("no"=>"5","name"=>"南口校","calendar_name"=>"塾_南口校");
-$floor_list[13] = array("no"=>"5","name"=>"南口校","calendar_name"=>"事務_南口校");
-$floor_list[14] = array("no"=>"6","name"=>"国立校","calendar_name"=>"塾_国立校");
-$floor_list[15] = array("no"=>"6","name"=>"国立校","calendar_name"=>"English_Kunitachi");
-$floor_list[16] = array("no"=>"7","name"=>"子安校","calendar_name"=>"ピアノ");
-$floor_list[17] = array("no"=>"7","name"=>"子安校","calendar_name"=>"習い事_子安校");
-$floor_list[18] = array("no"=>"7","name"=>"子安校","calendar_name"=>"塾_子安校");
-$floor_list[19] = array("no"=>"7","name"=>"子安校","calendar_name"=>"English_koyasu");
-$floor_list[20] = array("no"=>"8","name"=>"ダットッチ校","calendar_name"=>"English_dattochi");
-$floor_list[21] = array("no"=>"8","name"=>"ダットッチ校","calendar_name"=>"習い事_dattochi");
-$floor_list[22] = array("no"=>"9","name"=>"アローレ校","calendar_name"=>"塾_アローレ校");
+$floor_list[1] = array("no"=>"1","oldplace_no"=>"8","name"=>"日野市豊田校","calendar_name"=>"English_toyoda");
+$floor_list[2] = array("no"=>"1","oldplace_no"=>"8","name"=>"日野市豊田校","calendar_name"=>"塾_豊田校");
+$floor_list[3] = array("no"=>"2","oldplace_no"=>"5","name"=>"北口校２Ｆ","calendar_name"=>"事務_北口校");
+$floor_list[4] = array("no"=>"2","oldplace_no"=>"5","name"=>"北口校２Ｆ","calendar_name"=>"事務_本校");
+$floor_list[5] = array("no"=>"3","oldplace_no"=>"3","name"=>"北口校３Ｆ","calendar_name"=>"English_north_3F");
+$floor_list[6] = array("no"=>"3","oldplace_no"=>"3","name"=>"北口校３Ｆ","calendar_name"=>"塾_北口校_3F");
+$floor_list[7] = array("no"=>"3","oldplace_no"=>"3","name"=>"北口校３Ｆ","calendar_name"=>"習い事_北口校_3F");
+$floor_list[8] = array("no"=>"4","oldplace_no"=>"4","name"=>"北口校４Ｆ","calendar_name"=>"English_north_4F");
+$floor_list[9] = array("no"=>"4","oldplace_no"=>"4","name"=>"北口校４Ｆ","calendar_name"=>"塾_北口校_4F");
+$floor_list[10] = array("no"=>"5","oldplace_no"=>"2","name"=>"南口校","calendar_name"=>"English_south");
+$floor_list[11] = array("no"=>"5","oldplace_no"=>"2","name"=>"南口校","calendar_name"=>"習い事_南口校");
+$floor_list[12] = array("no"=>"5","oldplace_no"=>"2","name"=>"南口校","calendar_name"=>"塾_南口校");
+$floor_list[13] = array("no"=>"5","oldplace_no"=>"2","name"=>"南口校","calendar_name"=>"事務_南口校");
+$floor_list[14] = array("no"=>"6","oldplace_no"=>"10","name"=>"国立校","calendar_name"=>"塾_国立校");
+$floor_list[15] = array("no"=>"6","oldplace_no"=>"10","name"=>"国立校","calendar_name"=>"English_Kunitachi");
+$floor_list[16] = array("no"=>"7","oldplace_no"=>"9","name"=>"子安校","calendar_name"=>"ピアノ");
+$floor_list[17] = array("no"=>"7","oldplace_no"=>"9","name"=>"子安校","calendar_name"=>"習い事_子安校");
+$floor_list[18] = array("no"=>"7","oldplace_no"=>"9","name"=>"子安校","calendar_name"=>"塾_子安校");
+$floor_list[19] = array("no"=>"7","oldplace_no"=>"9","name"=>"子安校","calendar_name"=>"English_koyasu");
+$floor_list[20] = array("no"=>"8","oldplace_no"=>"7","name"=>"ダットッチ校","calendar_name"=>"English_dattochi");
+$floor_list[21] = array("no"=>"8","oldplace_no"=>"7","name"=>"ダットッチ校","calendar_name"=>"習い事_dattochi");
+$floor_list[22] = array("no"=>"9","oldplace_no"=>"6","name"=>"アローレ校","calendar_name"=>"塾_アローレ校");
+
+
+$family_member_list[1] = array("family_no"=>"000984","member1_no"=>"001207","member2_no"=>"001208");
+$family_member_list[2] = array("family_no"=>"001012","member1_no"=>"001105","member2_no"=>"001209");
+$family_member_list[3] = array("family_no"=>"001140","member1_no"=>"001210","member2_no"=>"001211");
+
 
 $season_class_title = '2019年夏期講習';
 $season_course_id = 4; // 夏期講習
