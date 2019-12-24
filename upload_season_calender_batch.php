@@ -76,10 +76,21 @@ $now = date('Y-m-d H:i:s');
 $work_list = get_work_list($dbh);  // making work list.
 
 define('ATTEND','出席');
+define('ABSENT1','休み１');
+define('ABSENT2','休み２');
+define('ABSENT2TODAY','休み２当日');
+define('TODAY','当日');
+define('ALTERNATE','振替');
+
 define('SEASON',10);
 define('SELFSTUDY',5);
 
 $const_attend = ATTEND;		
+$const_absent1 = ABSENT1;		
+$const_absent2 = ABSENT2;		
+$const_today = TODAY;		
+$const_alternate = ALTERNATE;		
+
 $target_work_id = SEASON;		// for season and weekend seminar m2m only. shortname is 'season'.
 $target_work_id2 = SELFSTUDY;		// for season and weekend seminar selfstudy only. shortname is 'ss'.
 
@@ -87,8 +98,8 @@ $target_work_id2 = SELFSTUDY;		// for season and weekend seminar selfstudy only.
 $startofmonth = $request_startyear.'-'.$request_startmonth_str.'-01';
 $endofmonth = $request_endyear.'-'.$request_endmonth_str.'-31';
 
-//$sql = "SELECT COUNT(*) AS COUNT FROM tbl_schedule_onetime WHERE ( work_id=?  OR work_id=? ) AND ymd BETWEEN ? AND ?";
-$sql = "SELECT COUNT(*) AS COUNT FROM tbl_schedule_onetime_test WHERE ( work_id=?  OR work_id=?) AND ymd BETWEEN ? AND ?";
+$sql = "SELECT COUNT(*) AS COUNT FROM tbl_schedule_onetime WHERE ( work_id=?  OR work_id=? ) AND ymd BETWEEN ? AND ?";
+//$sql = "SELECT COUNT(*) AS COUNT FROM tbl_schedule_onetime_test WHERE ( work_id=?  OR work_id=?) AND ymd BETWEEN ? AND ?";
 $stmt = $dbh->prepare($sql);
 $stmt->bindValue(1, $target_work_id, PDO::PARAM_INT);
 $stmt->bindValue(2, $target_work_id2, PDO::PARAM_INT);
@@ -121,11 +132,12 @@ if ($already_exist > 0) {			// Already exsit target year month data.
 
 						// Getting onetime schedule.
 	$startdate = $request_startyear.'-'.$request_startmonth_str.'-01';
-	$enddte = $request_endyear.'-'.$request_endmonth_str.'-31';
+	$enddate = $request_endyear.'-'.$request_endmonth_str.'-31';
+
 	$target_work_id = SEASON;		// for season and weekend seminar m2m only. shortname is 'season'.
 
-//	$sql = "SELECT ymd,user_id,teacher_id,COUNT(*) FROM tbl_schedule_onetime WHERE delflag=0 AND ymd BETWEEN ? AND ? ";
-	$sql = "SELECT ymd,user_id,teacher_id,COUNT(*) FROM tbl_schedule_onetime_test WHERE delflag=0 AND ymd BETWEEN ? AND ? ";
+	$sql = "SELECT ymd,user_id,teacher_id,COUNT(*) FROM tbl_schedule_onetime WHERE delflag=0 AND ymd BETWEEN ? AND ? ";
+//	$sql = "SELECT ymd,user_id,teacher_id,COUNT(*) FROM tbl_schedule_onetime_test WHERE delflag=0 AND ymd BETWEEN ? AND ? ";
 	$sql .= " AND work_id=? AND confirm='f' GROUP BY ymd,user_id,teacher_id";
 
 	$stmt = $dbh->prepare($sql);
@@ -134,33 +146,23 @@ if ($already_exist > 0) {			// Already exsit target year month data.
 	$stmt->bindValue(3, $target_work_id, PDO::PARAM_INT);
 	$stmt->execute();
 	$onetime_schedule_array = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
 	$season_cnt = 0; 	// initialization.
 	$onetime_cnt = 0; 	// initialization.
-	foreach ( $season_schedule_array as $row ) {
 
-        	$date_season = $row['date'] ;
-		$date_season_slash = str_replace('/','-',date_season); 
-        	$member_no_str = (string)$row['user_id'] ;
-	        $member_no_str_len = strlen($member_no_str);
-       		if ($member_no_str_len == 1) {
-               		 $member_no_str_complete = '00000'.$member_no_str;
-        	} else if ($member_no_str_len == 2) {
-                	$member_no_str_complete = '0000'.$member_no_str;
-        	} else if ($member_no_str_len == 3) {
-                	$member_no_str_complete = '000'.$member_no_str;
-        	} else if ($member_no_str_len == 4) {
-                	$member_no_str_complete = '00'.$member_no_str;
-        	} else if ($member_no_str_len == 5) {
-                	$member_no_str_complete = '0'.$member_no_str;
-        	}
-        	$teacher_no_season = $row['teacher_id'] - 100000 ;	// converting teacher_id from learning management system.
-        	$group_cnt_season = (int)$row['COUNT'] ;
+	foreach ( $season_schedule_array as $seasonrow ) {
+
+        	$date_season = $seasonrow['date'] ;
+		$date_season_ = str_replace('/','-',$date_season); 
+        	$member_no_season = (int)$seasonrow['member_no'] ;
+        	$teacher_no_season = (int)$seasonrow['teacher_no'] +100000 ;	// converting teacher_id from learning management system.
 					// Data value Check.
-        	if ($date_season_slash !== $onetime_schedule_array[onetime_cnt]['ymd'] 
-        		|| $member_no_season !== $onetime_schedule_array[onetime_cnt]['user_id']
-        		|| $teacher_no_season !== $onetime_schedule_array[onetime_cnt]['teacher_id'] ) {
+        	if ($date_season_ != $onetime_schedule_array[$onetime_cnt]['ymd'] 
+        		|| (string)$member_no_season != $onetime_schedule_array[$onetime_cnt]['user_id']
+        		|| (string)$teacher_no_season != $onetime_schedule_array[$onetime_cnt]['teacher_id'] ) {
 					// mismatch between learning management system and office management system.
 			$err_flag = true;
+
 			$message = 'attended data mismatch between season and onetime schedule. Extract onetime schedule again.';
 			goto error_label;
 		}
@@ -168,10 +170,10 @@ if ($already_exist > 0) {			// Already exsit target year month data.
 		$onetime_cnt++;
 	}
 				// check self study data both tbl_schedule_onetime and tbl_season_class_entry_date at first.
-						// Getting season schedule.
+						// Getting season schedule. both man2man and selfstudy.
 
-	$sql = "SELECT date,member_no,teacher_no,COUNT(*) FROM tbl_season_class_entry_date WHERE (date LIKE ? OR date LIKE ?) AND attend_status=? ";
-	$sql .= " GROUP BY date,member_no,teacher_no";
+	$sql = "SELECT date,member_id,COUNT(*) FROM tbl_season_class_entry_date WHERE (date LIKE ? OR date LIKE ?) AND attend_status=? ";
+	$sql .= " GROUP BY date,member_id";
 	$stmt = $db->prepare($sql);
 	$startyearmonth_percent = $request_startyear.'/'.$request_startmonth_str.'%';
 	$endyearmonth_percent = $request_endyear.'/'.$request_endmonth_str.'%';
@@ -181,31 +183,31 @@ if ($already_exist > 0) {			// Already exsit target year month data.
 	$stmt->execute();
 	$season_schedule_array = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-						// Getting onetime schedule.
+						// Getting onetime schedule. ( both man2man and selfstudy).
 	$startdate = $request_startyear.'-'.$request_startmonth_str.'-01';
 	$enddte = $request_endyear.'-'.$request_endmonth_str.'-31';
 
-//	$sql = "SELECT ymd,user_id,teacher_id,COUNT(*) FROM tbl_schedule_onetime WHERE delflag=0 AND ymd BETWEEN ? AND ? ";
-	$sql = "SELECT ymd,user_id,teacher_id,COUNT(*) FROM tbl_schedule_onetime_test WHERE delflag=0 AND ymd BETWEEN ? AND ? ";
-	$sql .= " AND work_id=? AND confirm='f' GROUP BY ymd,user_id,teacher_id";
+	$sql = "SELECT ymd,user_id,COUNT(*) FROM tbl_schedule_onetime WHERE delflag=0 AND ymd BETWEEN ? AND ? ";
+//	$sql = "SELECT ymd,user_id,COUNT(*) FROM tbl_schedule_onetime_test WHERE delflag=0 AND ymd BETWEEN ? AND ? ";
+	$sql .= " AND ( work_id=?  OR work_id=?) AND confirm='f' GROUP BY ymd,user_id";
 	$stmt = $dbh->prepare($sql);
 	$stmt->bindValue(1, $startdate, PDO::PARAM_STR);
 	$stmt->bindValue(2, $enddate, PDO::PARAM_STR);
 	$stmt->bindValue(3, $target_work_id, PDO::PARAM_INT);
+	$stmt->bindValue(4, $target_work_id2, PDO::PARAM_INT);
 	$stmt->execute();
 	$onetime_schedule_array = $stmt->fetchAll(PDO::FETCH_ASSOC);
 	$season_cnt = 0; 	// initialization.
 	$onetime_cnt = 0; 	// initialization.
-	foreach ( $season_schedule_array as $row ) {
 
-        	$date_season = $row['date'] ;
-        	$member_no_season = (int)$row['member_no'] ;
-        	$teacher_no_season = 100000 + (int)$row['teacher_no'] ;
-        	$group_cnt_season = (int)$row['COUNT'] ;
-					// Data value Check.
-        	if ($date_season !== $onetime_schedule_array[onetime_cnt]['ymd'] 
-        		|| $member_no_season !== $onetime_schedule_array[onetime_cnt]['user_id']
-        		|| $teacher_no_season !== $onetime_schedule_array[onetime_cnt]['teacher_id'] ) {
+	foreach ( $season_schedule_array as $seasonrow ) {
+
+        	$date_season = $seasonrow['date'] ;
+        	$member_no_season = (int)$seasonrow['member_id'] ;
+        	$group_cnt_season = (int)$seasonrow['COUNT'] ;
+									// Data value Check.
+        	if ($date_season != $onetime_schedule_array[$onetime_cnt]['ymd'] 
+        		|| $member_no_season != $onetime_schedule_array[$onetime_cnt]['user_id']) {
 
 			$err_flag = true;
 			$message = 'Attend data mismatch between season and onetime schedule. Extract onetime schedule again.';
@@ -217,8 +219,8 @@ if ($already_exist > 0) {			// Already exsit target year month data.
 
 				// logical delete target data before loading new data.
 
-//	$sql = "UPDATE tbl_schedule_onetime SET delflag= 1 WHERE (work_id=?  OR work_id=?) AND ymd BETWEEN ? AND ?";
-	$sql = "UPDATE tbl_schedule_onetime_test SET delflag= 1 WHERE (work_id=?  OR work_id=?) AND ymd BETWEEN ? AND ?";
+	$sql = "UPDATE tbl_schedule_onetime SET delflag= 1 WHERE (work_id=?  OR work_id=?) AND ymd BETWEEN ? AND ?";
+//	$sql = "UPDATE tbl_schedule_onetime_test SET delflag= 1 WHERE (work_id=?  OR work_id=?) AND ymd BETWEEN ? AND ?";
 	$stmt = $dbh->prepare($sql);
 	$stmt->bindValue(1, $target_work_id, PDO::PARAM_INT);
 	$stmt->bindValue(2, $target_work_id2, PDO::PARAM_INT);
@@ -237,8 +239,8 @@ if ($already_exist > 0) {			// Already exsit target year month data.
 			// tbl_season_scheduleからman2manデータの取得
 $startyearmonth_percent = $request_startyear.'/'.$request_startmonth_str.'%';
 $endyearmonth_percent = $request_endyear.'/'.$request_endmonth_str.'%';
-$sql = "SELECT date,stime,etime,lnum,teacher_no,member_no,lesson_id,subject_id,course_id FROM tbl_season_schedule WHERE date LIKE ? OR date LIke ?";
-$sql .= " ORDER BY date,member_no";
+$sql = "SELECT date,stime,etime,lnum,teacher_no,member_no,lesson_id,subject_id,course_id,attend_status FROM tbl_season_schedule ";
+$sql .= " WHERE date LIKE ? OR date LIke ? ORDER BY date,member_no";
 $stmt = $db->prepare($sql);
 $stmt->bindValue(1, $startyearmonth_percent, PDO::PARAM_STR);
 $stmt->bindValue(2, $endyearmonth_percent, PDO::PARAM_STR);
@@ -254,6 +256,7 @@ foreach ( $season_schedule_array as $row ) {
   	$teacher_id = 0 ; 
   	$student_no = 0; 
   	$user_id = 0 ; 
+	
   	$cancel = ""; 
   	$cancel_reason = ""; 
   	$lecture_id = 0 ; 
@@ -313,6 +316,30 @@ foreach ( $season_schedule_array as $row ) {
 	if ( is_null($lecture_id)){
 		$lecture_id = 88;	// setting default value.
 	}
+
+        $attend_status = $row['attend_status'];
+
+	switch ($attend_status) {
+	case ABSENT1:
+		$cancel = 'a1';
+		break;
+	case ABSENT2:
+		$cancel = 'a2';
+		break;
+	case ABSENT2TODAY:
+		$cancel = 'a2';
+  		$cancel_reason = TODAY; 
+		break;
+	case ATTEND:
+		$confirm = 'f';
+		break;
+	case ALTERNATE:
+		$alternate = 'a';
+		$altsched_id = -1;
+		break;
+	}
+
+
 				// 個別スケジュールへの挿入		
 	$result = insert_calender_event($dbh,
 					$start_timestamp,
@@ -351,7 +378,7 @@ foreach ( $season_schedule_array as $row ) {
 $startyearmonth_percent = $request_startyear.'/'.$request_startmonth_str.'%';
 $endyearmonth_percent = $request_endyear.'/'.$request_endmonth_str.'%';
 
-$sql = "SELECT date,stime,etime,member_id,season_course_id FROM tbl_season_class_entry_date WHERE date LIKE ? OR date LIKE ?";
+$sql = "SELECT date,stime,etime,member_id,season_course_id,attend_status FROM tbl_season_class_entry_date WHERE date LIKE ? OR date LIKE ?";
 $sql .= " ORDER BY date,member_id";
 $stmt = $db->prepare($sql);
 $stmt->bindValue(1, $startyearmonth_percent, PDO::PARAM_STR);
@@ -370,6 +397,7 @@ foreach ( $season_schedule_array as $row ) {
   	$user_id = 0 ; 
   	$cancel = ""; 
   	$cancel_reason = ""; 
+  	$confirm = ""; 
   	$lecture_id = 0 ; 
   	$lesson_id = 0 ; 
   	$course_id = 0 ; 
@@ -415,8 +443,10 @@ foreach ( $season_schedule_array as $row ) {
        	$lecture_id = $result['lecture_id'];
 
         $place_id = 3 ; // Hachioji north 3F.
+
+	$attend_status = $row['attend_status'];
 					// 全体時間からm2mの時間を引いて演習時間を求める
-	$status = insert_selfstudy_schedule($db,$dbh,$member_id,$startofday_ts,$endofday_ts,$lecture_id,$place_id,$subject_id);
+	$status = insert_selfstudy_schedule($db,$dbh,$member_id,$startofday_ts,$endofday_ts,$lecture_id,$place_id,$subject_id,$attend_status);
 					// Search for m2m schedule.
 
 
@@ -464,8 +494,8 @@ try{
 
 	if ($user_id==0) { goto exit_label;}
 						// not Repeting
-//	$sql = "INSERT INTO tbl_schedule_onetime (".
-	$sql = "INSERT INTO tbl_schedule_onetime_test (".
+	$sql = "INSERT INTO tbl_schedule_onetime (".
+//	$sql = "INSERT INTO tbl_schedule_onetime_test (".
 	" repetition_id, user_id,teacher_id,student_no,ymd,starttime,endtime,lecture_id,subject_expr,work_id,free,cancel,cancel_reason, ".
 	" alternate,altsched_id,trial_id, absent1_num,absent2_num,trial_num,repeattimes,place_id,temporary,entrytime,updatetime,updateuser, ".
 	" comment,temp_name,googlecal_id,googleevent_id,googleexpression,recurrence_id ,monthly_fee_flag".
@@ -529,7 +559,7 @@ function get_work_list(&$dbh) {
 
 /************* Selfstudy schedule Insert ****************/
 
-function insert_selfstudy_schedule(&$db,&$dbh,$member_id,$startofday_ts,$endofday_ts,$lecture_id,$place_id,$subject_id ) {
+function insert_selfstudy_schedule(&$db,&$dbh,$member_id,$startofday_ts,$endofday_ts,$lecture_id,$place_id,$subject_id,$attend_status ) {
 				// for a given season schedule(member_id,startofdayts,endofdayts), make up selfstudy schedule. 
 global $work_list;
 global $subject_list;
@@ -607,7 +637,27 @@ try{
   			$trial_num = 0; 
   			$comment = ""; 
   			$temp_name = ""; 
+  			$confirm = ""; 
 
+			switch ($attend_status) {
+			case ABSENT1:
+				$cancel = 'a1';
+				break;
+			case ABSENT2:
+				$cancel = 'a2';
+				break;
+			case ABSENT2TODAY:
+				$cancel = 'a2';
+  				$cancel_reason = TODAY; 
+				break;
+			case ATTEND:
+				$confirm = 'f';
+				break;
+			case ALTERNATE:
+				$alternate = 'a';
+				$altsched_id = -1;
+				break;
+			}
 			$result = insert_calender_event($dbh,
 					$start_timestamp,
 					$end_timestamp,
@@ -662,6 +712,25 @@ try{
   		$trial_num = 0; 
   		$comment = ""; 
   		$temp_name = ""; 
+		switch ($attend_status) {
+		case ABSENT1:
+			$cancel = 'a1';
+			break;
+		case ABSENT2:
+			$cancel = 'a2';
+			break;
+		case ABSENT2TODAY:
+			$cancel = 'a2';
+  			$cancel_reason = TODAY; 
+			break;
+		case ATTEND:
+			$confirm = 'f';
+			break;
+		case ALTERNATE:
+			$alternate = 'a';
+			$altsched_id = -1;
+			break;
+		}
 
 		$result = insert_calender_event($dbh,
 				$start_timestamp,
