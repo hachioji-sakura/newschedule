@@ -247,7 +247,7 @@ $stmt->bindValue(1, $startyearmonth_percent, PDO::PARAM_STR);
 $stmt->bindValue(2, $endyearmonth_percent, PDO::PARAM_STR);
 
 $stmt->execute();
-$season_schedule_array = $stmt->fetchAll(PDO::FETCH_ASSOC);:q!
+$season_schedule_array = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 foreach ( $season_schedule_array as $row ) {
 	  			 // Initialization.
