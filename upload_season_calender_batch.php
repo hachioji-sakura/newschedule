@@ -247,7 +247,8 @@ $stmt->bindValue(1, $startyearmonth_percent, PDO::PARAM_STR);
 $stmt->bindValue(2, $endyearmonth_percent, PDO::PARAM_STR);
 
 $stmt->execute();
-$season_schedule_array = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$season_schedule_array = $stmt->fetchAll(PDO::FETCH_ASSOC);:q!
+
 foreach ( $season_schedule_array as $row ) {
 	  			 // Initialization.
  	$temporary = 0; 
@@ -293,17 +294,9 @@ foreach ( $season_schedule_array as $row ) {
         $student_no = $user_id ;
         $lesson_id = (int)$row['lesson_id'] ;
         $course_id = (int)$row['course_id'] ;
+        $subject_id = (int)$row['subject_id'] ;
         $place_id = 3 ; // Hachioji north 3F.
-
-	switch ($course_id) {
-	 case 4:
-	 case 5:
-	 case 6:
-	 case 9:
-	  	$work = 'season';
-		$subject_id = 0 ;
-		break;
-	}
+  	$work = 'season';
 
 	$sql = "SELECT lecture_id FROM tbl_lecture WHERE lesson_id = ? AND course_id=? AND subject_id= ? ";
       	$stmt = $db->prepare($sql);
