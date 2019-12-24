@@ -5,6 +5,7 @@
 // replace is the option to load data even if there exist target month's data in tbl_schedule_onetime.
 
 //ini_set( 'display_errors', 0 );
+error_reporting(0);
 
 $request_startyear = $argv[1];
 if (!$request_startyear){
