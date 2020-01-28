@@ -239,7 +239,6 @@ foreach ( $season_entry_date_array as $season_entry_date_row ) {
 	  	$trial_id = ""; 
  	 	$alternate = ""; 
   		$altsched_id = 0; 
-  		$student_no = 0; 
   		$cancel = ""; 
   		$cancel_reason = ""; 
   		$confirm = ""; 
