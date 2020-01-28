@@ -255,6 +255,7 @@ foreach ( $season_entry_date_array as $season_entry_date_row ) {
         	$course_id = (int)$season_schedule_row['course_id'] ;
         	$subject_id = (int)$season_schedule_row['subject_id'] ;
         	$teacher_id = (int)$season_schedule_row['teacher_no'] ;
+        	$teacher_id = $teacher_id + 100000 ;
 
 		$starttime = $season_schedule_row['stime'];
 		$timestamp_str = $datewithslash.' '.$starttime.':00';
