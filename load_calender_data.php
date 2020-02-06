@@ -41,6 +41,8 @@ define('CONST_FAMILY','ファミリー(');
 define('CONST_GROUP','グループ(');
 define('CONST_CLOSING',')');
 define('CONST_TRYSTUDENT','体験生徒');
+define('CONST_SS','：演習');
+define('CONST_SEASONSS','：季節講習演習');
 
 
 // ****** メイン処理ここから ******
@@ -114,7 +116,7 @@ try{
 	$sql = "SELECT id, ".
 	"repetition_id, user_id,teacher_id,student_no,ymd,starttime,endtime,lecture_id,work_id,free,cancel,cancel_reason,alternate,altsched_id,trial_id, ".
 	"absent1_num,absent2_num,trial_num,repeattimes,place_id,temporary,entrytime,updatetime,updateuser,comment,googlecal_id,googleevent_id,recurrence_id".
-	" FROM tbl_schedule_onetime WHERE ymd BETWEEN ? AND ? ";
+	" FROM tbl_schedule_onetime WHERE delflag!=1 AND cancel!='c' AND ymd BETWEEN ? AND ? ";
 	$stmt = $dbh->prepare($sql);
 	$stmt->bindValue(1, $request_startdate, PDO::PARAM_STR);
 	$stmt->bindValue(2, $request_enddate, PDO::PARAM_STR);
@@ -285,7 +287,7 @@ try{
 			$evt_summary = $evt_summary.$subject_list[$subject_id];
 		}
 
-		if ($teacher_id) {		// setting teacher name 
+		if ($teacher_id) {			// setting teacher name 
 			$evt_summary = $evt_summary.CONST_COLON ;
 			foreach ($teacher_list as $teacher) {
 				if ($teacher['no'] == $teacher_id - 100000){
@@ -316,6 +318,12 @@ try{
 							// 繰り返しスケジュールを表す
 			$recurringEvent = "1";
 		} 
+		if ($work_id==5) {			// 演習の文字列をセット 
+			$evt_summary = $evt_summary.CONST_SS ;
+		}
+		if ($work_id==11) {			// 季節講習演習の文字列をセット 
+			$evt_summary = $evt_summary.CONST_SEASONSS ;
+		}
 
 		if ($user_id > 200000 ) {	// スタッフの場合
 			$staff_no = $user_id - 200000 ;
