@@ -59,11 +59,9 @@ $calList = $service->calendarList->listCalendarList();
 $err_flag = false;
 $errArray = array();
 
-// For temporary
 $now = date('Y/m/d');
 $dbh=new PDO('mysql:host=mysql720.db.sakura.ne.jp;dbname=hachiojisakura_calendar;charset=utf8',DB_USER,DB_PASSWD2);
 $dbh->setAttribute(PDO::ATTR_ERRMODE,PDO::ERRMODE_EXCEPTION);
-// For temporary End.
 
 $work_list = get_work_list($dbh);
 
